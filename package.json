@@ -1,0 +1,40 @@
+{
+  "name": "@~lisfan/storage",
+  "version": "1.0.0",
+  "description": "离线存储器",
+  "main": "src/index.js",
+  "scripts": {
+    "pub-pre": "git pu  ll && npm version prerelease && git add . && git commit -m 'updata: update version' && git push",
+    "pub-n": "npm run pub-pre && npm publish --tag n",
+    "pub-a": "npm run pub-pre && npm publish --tag a",
+    "pub-b": "npm run pub-pre && npm publish --tag b",
+    "pub-rc": "npm run pub-pre && npm publish --tag rc",
+    "pub-s": "npm run pub-pre && npm publish --tag stable",
+    "pub": "npm run pub-pre && npm publish",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lisfan/timer.git"
+  },
+  "keywords": [
+    "sessionStorage",
+    "localStorage",
+    "webSQL",
+    "indexedDB",
+    "offline storage",
+    "storage",
+    "store"
+  ],
+  "author": "lisfan <goolisfan@gmail.com> (https://www.npmjs.com/~lisfan)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lisfan/storage/issues"
+  },
+  "homepage": "https://github.com/lisfan/storage#readme",
+  "dependencies": {
+    "@~lisfan/validation": "^1.0.0-rc.7",
+    "localforage": "^1.5.2",
+    "lodash": "^4.17.4"
+  }
+}
