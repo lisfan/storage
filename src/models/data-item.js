@@ -6,20 +6,49 @@
  */
 
 export default class DataItem {
-  $description = '' // 该数据单元项的描述
+  /**
+   * 默认配置选项
+   * @enum
+   */
+  static options = {
+    data: undefined, // 该数据单元项的数据
+    description: '', // 该数据单元项的描述
+    maxAge: -1 // 该数据单元项的存活时间
+  }
+
+  /**
+   * 更新默认配置项
+   * @static
+   * @param {object} options - 配置参数
+   */
+  static config(options) {
+    const ctor = this
+
+    // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
+    ctor.options = {
+      ...ctor.options,
+      options
+    }
+  }
+
+  // $options
   $initTimeStamp = undefined // 实例初始化时间戳（与$updateTimeStamp比较时使用该项进行比较，判断是否过期）
   $updateTimeStamp = undefined // 该数据的更新时间戳
-  $data = undefined // 该数据单元项的数据
-  $maxAge = undefined // 该数据单元项的存活时间
 
   /**
    * 构造函数
    * @param {object} options - 配置参数
    */
   constructor(options) {
-    this.$description = options.description
-    this.$maxAge = options.maxAge // 如果未指定有效时间，则取默认值
-    this.$data = options.data
+    const ctor = this.constructor
+    this.$options = {
+      ...ctor.options,
+      ...options
+    }
+
+    // this.$description = options.description
+    // this.$maxAge = options.maxAge // 如果未指定有效时间，则取默认值
+    // this.$data = options.data
 
     const timeStamp = Date.now()
     this.$initTimeStamp = timeStamp // 该数据初次存储的时间戳
@@ -29,6 +58,39 @@ export default class DataItem {
     } else {
       this.$updateTimeStamp = timeStamp // 该数据初次存储的时间戳
     }
+  }
+
+  /**
+   * 获取实例描述
+   */
+  get $description() {
+    return this.$options.description
+  }
+
+  // readonly
+  set $description(value) {
+  }
+
+  /**
+   * 获取实例描述
+   */
+  get $data() {
+    return this.$options.data
+  }
+
+  // readonly
+  set $data(value) {
+  }
+
+  /**
+   * 获取实例描述
+   */
+  get $maxAge() {
+    return this.$options.maxAge
+  }
+
+  // readonly
+  set $maxAge(value) {
   }
 
   /**
