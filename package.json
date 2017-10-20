@@ -1,10 +1,10 @@
 {
   "name": "@~lisfan/storage",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "离线存储器",
   "main": "src/index.js",
   "scripts": {
-    "pub-pre": "git pu  ll && npm version prerelease && git add . && git commit -m 'updata: update version' && git push",
+    "pub-pre": "git pull && npm version prerelease && git add . && git commit -m 'updata: update version' && git push",
     "pub-n": "npm run pub-pre && npm publish --tag n",
     "pub-a": "npm run pub-pre && npm publish --tag a",
     "pub-b": "npm run pub-pre && npm publish --tag b",
