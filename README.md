@@ -1,28 +1,52 @@
 # Timer 计时器
 
-## Feature 特性
-- 可检测到时间流速不正常时（如待机、休眠、或者切换了tab），造成进程挂起，计时不准确，该模块会自动修正时间流速的错误，将其调整回正确的时间
-- 支持不同的计时模式，：递增计时和递减计时（倒计时），默认倒计时
-- 计时时间戳选项接收值单位为毫秒，且是/1000后的整数，超出时会向下取整
-- 提供妙表功能
-- 暂不支持毫秒计时
-
-
-## Usage 起步
-
-``` js
-import Timer from '@~lisfan/timer'
-
-const timer = new Timer({
-   timeStamp: 1 * 10 * 1000,
-})
-
-// 倒计时开始
-timer.start((timerInstance) => {
-    console.log('每秒执行一次该回调',timerInstance.$datetime)
-}).then(() => {
-    console.log('倒计时结束')
-}).catch(() => {
-    console.log('中途造成计时中断')
-})
-```
+- 底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)插件，并自封装了支持`sessionStorage`的一个扩展插件
+- 是提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，所以为了确保它已经完全初始化，需将逻辑代码写在调用`ready()`方法后的`resolved`函数里
+- 提供的API模仿`localforage-like`风格，但增减了一部分，同时也可能更改了部分方法的逻辑，但大致上还是可以参考文档localforage的文档的
+- 支持`localforage`所有全局配置项参数，各配置参数作用也是相同的，但细微之处会有差异，且额外扩展了一些新的配置项，同时支持自定义数据存储单元的配置项
+- 额外扩展了如下配置选项
+  - 数据存储有效期控制`maxAge`：默认数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+- 与 `localforage` 模块的的一些区别
+   - 驱动器的常量值变化，改成以下对应的值，且作为了是类的静态属性成员
+     - `Storage.SESSIONSTORAGE`: 使用`sessionstorage`离线存储，默认项
+     - `Storage.LOCALSTORAGE`: 使用`localstorage`离线存储
+     - `Storage.INDEXEDDB`: 使用`indexedDB`离线存储
+     - `Storage.WEBSQL`: 使用`webSQL`离线存储
+   - 驱动器的默认使用顺序变更：根据浏览器支持情况，优先选择`sessionStorage`，之后再根据`localforage`的默认值选择
+   - `Storage`实例移除类似`localforage` API末尾的`callback`形参
+   - `Storage.supports`方法作为静态方法成员，而不是像`localforage#supports`方法作为实例方法成员
+   - `Storage`中不存在像`localforage#setDriver`、`localforage#createInstance`、`localforage#defineDriver`等API
+   - `Storage#length`作为一个实例属性值，而不是像`localforage#length`作为一个异步方法
+   - 增加了一个`Storage#updateItem`方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
+   - `Storage#getItem`方法取的值若不存在时，将进入`reject`，抛出`not found`，而不是返回`null`
+- 扩展支持的一些新的数据类型存储
+   - 默认支持`localforage`支持的如下数据类型存储
+    - `null`
+    - `Number`
+    - `String`
+    - `Array`
+    - `Object`
+    - `Blob`
+    - `ArrayBuffer`
+    - `Float32Array`
+    - `Float64Array`
+    - `Int8Array`
+    - `Int16Array`
+    - `Int32Array`
+    - `Uint8Array`
+    - `Uint8ClampedArray`
+    - `Uint16Array`
+    - `Uint32Array`
+   - 在此基础上又扩充了对如下数据类型的存储（因为在某些实际的使用场景中还是需要用的到，内部存储时将使用了如下格式进行存储）
+    - `undefined` => `[storage undefined]#undefined`
+    - `NaN => `[storage nan]#NaN`
+    - `Infinity => `[storage infinity]#Infinity`
+    - ``-Infinity => `[storage infinity]#-Infinity`
+    - `new Date() => `[storage date]#1507600033804`
+    - ``/regexp/g => `[storage regexp]#/regexp/g`
+    - `new RegExp('regexp', 'g') => `[storage regexp]#/regexp/g`
+    - `function(){} => `[storage function]#function(){}`
+    - `new Function('a', 'b', 'return a+b') => `[storage function]#function anonymous(){}`
+   - 不对以下数据类型进行存储
+    - `Symbol`
+    - `Error`
