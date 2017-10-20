@@ -1,7 +1,7 @@
 /*
  * 模拟 lodash API
  */
-import validation from '@~lisfan/validation'
+import validation from '@xkeshi/validation'
 
 export default {
   compact(arr) {
