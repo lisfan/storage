@@ -20,7 +20,7 @@
    - 增加了一个`Storage#updateItem`方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
    - `Storage#getItem`方法取的值若不存在时，将进入`reject`，抛出`not found`，而不是返回`null`
 - 扩展支持的一些新的数据类型存储
-   - 默认支持`localforage`支持的如下数据类型存储
+  - 默认支持`localforage`支持的如下数据类型存储
     - `null`
     - `Number`
     - `String`
@@ -37,16 +37,16 @@
     - `Uint8ClampedArray`
     - `Uint16Array`
     - `Uint32Array`
-   - 在此基础上又扩充了对如下数据类型的存储（因为在某些实际的使用场景中还是需要用的到，内部存储时将使用了如下格式进行存储）
+  - 在此基础上又扩充了对如下数据类型的存储（因为在某些实际的使用场景中还是需要用的到，内部存储时将使用了如下格式进行存储）
     - `undefined` => `[storage undefined]#undefined`
-    - `NaN => `[storage nan]#NaN`
-    - `Infinity => `[storage infinity]#Infinity`
-    - ``-Infinity => `[storage infinity]#-Infinity`
-    - `new Date() => `[storage date]#1507600033804`
-    - ``/regexp/g => `[storage regexp]#/regexp/g`
-    - `new RegExp('regexp', 'g') => `[storage regexp]#/regexp/g`
-    - `function(){} => `[storage function]#function(){}`
-    - `new Function('a', 'b', 'return a+b') => `[storage function]#function anonymous(){}`
-   - 不对以下数据类型进行存储
+    - `NaN` => `[storage nan]#NaN`
+    - `Infinity` => `[storage infinity]#Infinity`
+    - `-Infinity` => `[storage infinity]#-Infinity`
+    - `new Date()` => `[storage date]#1507600033804`
+    - `/regexp/g` => `[storage regexp]#/regexp/g`
+    - `new RegExp('regexp', 'g')` => `[storage regexp]#/regexp/g`
+    - `function(){}`` => `[storage function]#function(){}`
+    - `new Function('a', 'b', 'return a+b')` => `[storage function]#function anonymous(){}`
+  - 不对以下数据类型进行存储
     - `Symbol`
     - `Error`
