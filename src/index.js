@@ -1,78 +1,6 @@
 /**
  * 离线存储控制器
  *
- * 模块性质：工具模块
- * 作用范围：pc、mobile
- * 依赖模块：utils/env
- * 来源项目：扫码点单H5
- * 初始发布日期：2017-09-29 10:00
- * 最后更新日期：2017-05-25 20:00
- *
- * ## 特性
- * - 底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)插件，并自封装了一个 sessionStorage-driver
- * - storage是提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，
- * 所以为了确保它已经完全初始化，需将逻辑代码写在调用ready()方法后的resolved函数里
- * - storage提供的API模仿localforage-like风格，但增减了一些，同时也可能更改了部分方法的表现，但大致上还是可以参考文档localforage的文档的
- * - 支持localforage所有全局配置项参数，各配置参数作用也是相同的，但细微之处会有差异，且额外扩展了一些新的配置项，同时支持自定义数据存储单元的配置项
- *  - 额外扩展了如下配置选项
- *    - 数据存储有效期控制(maxAge)：默认数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
- * 除了`driver`外的
- * - 与 localforage 模块的的一些区别
- *    - 驱动器的常量值变化，改成以下对应的值，且作为了是类的静态属性成员
- *      - Storage.SESSIONSTORAGE: 使用sessionstorage存储（默认优先选择该项）
- *      - Storage.LOCALSTORAGE: 使用localstorage存储
- *      - Storage.INDEXEDDB: 使用indexedDB存储
- *      - Storage.WEBSQL: 使用webSQL存储
- *    - 驱动器的默认使用顺序变更：根据浏览器支持情况，优先选择sessionStorage，之后再根据localforage的默认值走
- *    - Storage实例移除类似localforage API末尾的callback形参
- *    - Storage.supports方法作为静态方法成员，而不是像localforage#supports方法作为实例方法成员
- *    - Storage中不存在像localforage#setDriver、localforage#createInstance、localforage#defineDriver等API
- *    - Storage#length作为一个实例属性值，而不是像localforage#length作为一个异步方法
- *    - 增加了一个Storage#updateItem方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
- *    - Storage#getItem方法取的值若不存在时，将进入reject，抛出'not found'，而不是返回null
- * - 扩展支持的一些新的数据类型存储
- *    - 默认支持localforage支持的如下数据类型存储
- *     - null
- *     - Number
- *     - String
- *     - Array
- *     - Object
- *     - Blob
- *     - ArrayBuffer
- *     - Float32Array
- *     - Float64Array
- *     - Int8Array
- *     - Int16Array
- *     - Int32Array
- *     - Uint8Array
- *     - Uint8ClampedArray
- *     - Uint16Array
- *     - Uint32Array
- *    - 在此基础上又扩充了对如下数据类型的存储（因为在某些实际的使用场景中还是需要用的到，内部存储时将使用了如下格式进行存储）
- *     - undefined => [storage undefined]#undefined
- *     - NaN => [storage nan]#NaN
- *     - Infinity => [storage infinity]#Infinity
- *     - -Infinity => [storage infinity]#-Infinity
- *     - new Date() => [storage date]#1507600033804
- *     - /regexp/g => [storage regexp]#/regexp/g
- *     - new RegExp('regexp', 'g') => [storage regexp]#/regexp/g
- *     - function(){} => [storage function]#function(){}
- *     - new Function('a', 'b', 'return a+b') => [storage function]#function anonymous(){}
- *    - 不对以下数据类型进行存储
- *     - Symbol
- *     - Error
- *
- * ## Changelog
- *
- * ## TODO
- *
- * ## Usage
- * ``` js
- *
- * ```
- *
- * @since 3.0.0
- * @version 1.0.0
  */
 
 import localforage from 'localforage'
@@ -383,7 +311,10 @@ export class Storage {
    * @param {object} options - 自定义配置项
    * @returns {Promise} - 返回存储指定数据项Promise
    */
-  setItem(key, data, options) {
+  setItem(key, data, options = {}) {
+    console.log('key', key)
+    console.log('data', data)
+    console.log('options', options)
     // 往storeMap中插入一条记录
     // [误]判断$store是否已存在，若已存在，则进行更新数据，若不存在，则初始化
     // [新]该方法将进行覆盖，重新需实例化
@@ -439,7 +370,7 @@ export class Storage {
 
     // 如果DataItem实例不存在，或者DataItem实例的maxAge属性不存在时
     if (!dataItem || !validation.isNumber(dataItem.$maxAge)) {
-      return Promise.reject('not found')
+      return Promise.reject('notfound')
     }
 
     // maxAge的值大于0
