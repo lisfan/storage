@@ -6,7 +6,7 @@
 import localforage from 'localforage'
 import sessionStorageWrapper from './utils/localforage-sessionstoragewrapper'
 
-import validation from '@~lisfan/validation'
+import validation from '@xkeshi/validation'
 import _ from './utils/lodash-personal.js'
 import utils from './utils/utils.js'
 
