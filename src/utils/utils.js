@@ -3,7 +3,7 @@
  */
 import DATA_TYPE from '../enums/data-types'
 import _ from './lodash-personal'
-import validation from '@xkeshi/validation'
+import validation from '@~lisfan/validation'
 
 import LOCALFORAGE_DRIVERS_REFLECTOR from '../enums/localforage-drivers-reflector'
 import STORAGE_DRIVERS_REFLECTOR from '../enums/localforage-drivers-reflector'

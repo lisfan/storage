@@ -1,6 +1,6 @@
 {
   "name": "@~lisfan/storage",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.5",
   "description": "离线存储器",
   "main": "src/index.js",
   "scripts": {
