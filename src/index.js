@@ -429,6 +429,8 @@ class Storage {
 
   /**
    * 获取指定数据项数据
+   * 若离线存储器中取不到值，会进入rejected('notfound')
+   * 若离线存储器中值已过期，会进入rejected('outdated')
    *
    * @since 1.0.0
    * @param {string} key - 数据项名称

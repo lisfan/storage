@@ -1,5 +1,8 @@
 # Storage 离线存储器
 
+[API documentation](https://lisfan.github.io/storage/)
+
+## Feature 特性
 底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)模块，并且封装了让localforage支持`sessionStorage`存储的一个扩展插件
 
 提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，所以为了确保它已经完全初始化，需将逻辑代码写在调用`ready()`方法后的`resolved`函数里
@@ -55,3 +58,45 @@
 - 不对以下数据类型进行存储
     - `Symbol`
     - `Error`
+
+## 安装
+
+```bash
+npm install -S @~lisfan/storage
+```
+
+## Usage 起步
+
+``` js
+import storage,{Storage} from '@~lisfan/storage'
+
+// 在存值或取值前确保实例已完全初始化完成
+storage.ready().then(()=>{
+  // 设置值
+  storage.setItem('someKey','someData').then((data)=>{
+    // 设置成功
+  })
+
+  // 设置值存活有效期10秒钟
+  storage.setItem('someKey','someData',{maxAge:10*1000}).then((data)=>{
+  })
+})
+
+
+// 自定义存储器实例
+const storageOther = new Storage({
+  name: 'storageOther'
+})
+
+// 获取值
+storageOther.ready().then(()=>{
+  storageOther.getItem('someKey').then((data)=>{
+    // 取到了值
+  }).catch((err)=>{
+    // err 为 'notfound'
+    // 值不存在
+    // err 为 'outdated'
+    // 值过期
+  })
+})
+```
