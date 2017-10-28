@@ -15,8 +15,7 @@ import utils from './utils/utils'
 import DataItem from './models/data-item'
 
 import STORAGE_DRIVERS from './enums/storage-drivers'
-import LOCALFORAGE_DRIVERS_REFLECTOR from './enums/localforage-drivers-reflector'
-import STORAGE_DRIVERS_REFLECTOR from './enums/localforage-drivers-reflector'
+import DRIVERS_REFLECTOR from './enums/localforage-drivers-reflector'
 
 // localForage默认配置项
 const localForageDefaultConfig = localforage._defaultConfig
@@ -109,7 +108,7 @@ const _actions = {
     return new Promise((resolve) => {
       self.$storage.ready().then(async () => {
         const localforageConfig = self.$storage._config
-        self.$driver = LOCALFORAGE_DRIVERS_REFLECTOR[localforageConfig.driver]
+        self.$driver = DRIVERS_REFLECTOR[localforageConfig.driver]
         self.$name = localforageConfig.name
         self.$description = localforageConfig.description
         self.$storeName = localforageConfig.storeName
@@ -211,42 +210,78 @@ const _actions = {
   },
 }
 
-/* eslint-disable require-jsdoc */
 /**
- * 离线存储控制器
- * 1. storage只会管理存储通过其 API 创建的离线数据，会加入命名空间前缀，不管理其他自定义的存储数据
+ * 离线存储类
+ * 1. storage只会管理存储通过其 API 创建的离线数据，不管理其他自定义的存储数据（数据项会加上命名空间前缀）
  * 2. storage实例会单独建立一个映射表来管理数据单元与数据的映射关系
- * @class Storage
+ *
+ * @class
  */
 class Storage {
-  // 静态成员
+  /**
+   * sessionStorage驱动器
+   *
+   * @since 1.0.0
+   * @memberOf Storage
+   */
   static SESSIONSTORAGE = STORAGE_DRIVERS.SESSIONSTORAGE
+  /**
+   * indexedDB驱动器
+   *
+   * @since 1.0.0
+   * @memberOf Storage
+   */
   static INDEXEDDB = STORAGE_DRIVERS.INDEXEDDB
+  /**
+   * webSQL驱动器
+   *
+   * @since 1.0.0
+   * @memberOf Storage
+   */
   static WEBSQL = STORAGE_DRIVERS.WEBSQL
+  /**
+   * localStorage驱动器
+   *
+   * @since 1.0.0
+   * @memberOf Storage
+   */
   static LOCALSTORAGE = STORAGE_DRIVERS.LOCALSTORAGE
 
   /**
-   * 默认配置项
+   * 默认配置选项
    *
+   * @since 1.0.0
    * @static
+   * @memberOf Storage
+   * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
+   * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
+   *   离线存储器的驱动器优先选择列表
+   * @property {string} name='storage' - 离线存储器命名空间
+   * @property {string} description='' - 离线存储器描述，取localforage的默认值
+   * @property {number} size=4980736 - 离线存储器的大小，仅webSQL有效，取localforage的默认值
+   * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
-    maxAge: -1, // 默认数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
-    /**
-     * 默认storage驱动器优先选择列表
-     * @returns {array} - 返回默认storage驱动器列表
-     */
+    maxAge: -1,
     driver: utils.transformLocalforageDriverToStorageDriver(localForageDefaultDriver),
-    name: 'storage', // 默认命名空间
-    description: localForageDefaultConfig.description, // 默认描述
-    size: localForageDefaultConfig.size, // 默认数据库大小，仅WebSQL有效
-    storeName: localForageDefaultConfig.storeName, // 默认数据库名称，仅indexedDB和WebSQL有效
+    name: 'storage',
+    description: localForageDefaultConfig.description,
+    size: localForageDefaultConfig.size,
+    storeName: localForageDefaultConfig.storeName,
   }
 
   /**
-   * 更新默认配置项
+   * 更新默认配置选项
+   *
+   * @since 1.0.0
    * @static
-   * @param {object} options - 配置参数
+   * @param {object} options - 配置选项
+   * @param {number} [options.maxAge] - 数据可存活时间
+   * @param {array|string} [options.driver] - 离线存储器的驱动器
+   * @param {string} [options.name] - 离线存储器命名空间
+   * @param {string} [options.description]- 离线存储器描述
+   * @param {number} [options.size]- 离线存储器的大小
+   * @param {string} [options.storeName] - 离线存储器的数据库名称
    */
   static config(options) {
     const ctor = this
@@ -259,18 +294,27 @@ class Storage {
   }
 
   /**
-   * storage实例是否已完全初始化是否已实例化完成
-   * @static
-   * @param {symbol} driver - 驱动器是否被支持
-   * @returns {Promise} 实例化完成
+   * 判断浏览器是否支持对应的离线存储驱动器
+   *
+   * @since 1.0.0
+   * @param {symbol} driver - 驱动器常量
+   * @returns {Promise}
    */
   static supports(driver) {
-    return localforage.supports(STORAGE_DRIVERS_REFLECTOR[driver])
+    return localforage.supports(DRIVERS_REFLECTOR[driver])
   }
 
   /**
    * 构造函数
+   *
    * @param {object} options - 配置参数
+   * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+   * @param {array|string} [options.driver] -
+   *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE
+   * @param {string} [options.name] - 离线存储器命名空间
+   * @param {string} [options.description]- 离线存储器描述
+   * @param {number} [options.size]- 离线存储器的大小
+   * @param {string} [options.storeName] - 离线存储器的数据库名称
    */
   constructor(options) {
     const ctor = this.constructor
@@ -308,34 +352,37 @@ class Storage {
   }
 
   /**
-   * storage实例是否已完全初始化是否已实例化完成
-   * @returns {Promise} 实例化完成
+   * 实例已初始化完成
+   *
+   * @since 1.0.0
+   * @returns {Promise}
    */
   ready() {
     return this._ready
   }
 
   /**
-   * 获取当前实例的驱动器
-   * 获取之前确保已经完全实例化
-   * todo 引入装饰器，确保实例的属性值都是不可被更改的
-   * @returns {Promise} 实例化完成
+   * 获取当前实例的驱动器常量
+   **
+   * @since 1.0.0
+   * @returns {Promise}
    */
   driver() {
     return this.$driver
   }
 
   /**
-   * 设置指定数据项
+   * 存储数据项到离线存储器
+   *
+   * @since 1.0.0
    * @param {string} key - 数据项名称
-   * @param {*} data - 存储数据
-   * @param {object} options - 自定义配置项
-   * @returns {Promise} - 返回存储指定数据项Promise
+   * @param {*} data - 任意数据
+   * @param {object} options - 自定义存储单元的配置选项
+   * @param {number} [options.maxAge] - 数据单元项可存活时间（毫秒单位）
+   * @param {string} [options.description]- 数据单元项描述
+   * @returns {Promise}
    */
   setItem(key, data, options = {}) {
-    console.log('key', key)
-    console.log('data', data)
-    console.log('options', options)
     // 往storeMap中插入一条记录
     // [误]判断$store是否已存在，若已存在，则进行更新数据，若不存在，则初始化
     // [新]该方法将进行覆盖，重新需实例化
@@ -356,10 +403,12 @@ class Storage {
   }
 
   /**
-   * 更新指定数据项数据
+   * 更新数据项数据
+   *
+   * @since 1.0.0
    * @param {string} key - 数据项名称
-   * @param {*} data - 存储数据
-   * @returns {Promise} - 返回存储指定数据项Promise
+   * @param {*} data - 任意数据
+   * @returns {Promise}
    */
   updateItem(key, data) {
     // 判断是否已存在该项
@@ -379,10 +428,11 @@ class Storage {
   }
 
   /**
-   * 获取指定数据项
-   * 若已过期，则会返回reject
+   * 获取指定数据项数据
+   *
+   * @since 1.0.0
    * @param {string} key - 数据项名称
-   * @returns {Promise} - 返回指定数据项Promise
+   * @returns {Promise}
    */
   getItem(key) {
     const nowTimeStamp = Date.now()
@@ -418,8 +468,10 @@ class Storage {
 
   /**
    * 移除数据项
+   *
+   * @since 1.0.0
    * @param {string} key - 数据项名称
-   * @returns {Promise} - 返回移除结果
+   * @returns {Promise}
    */
   removeItem(key) {
     this.$storeMap[key] = null
@@ -431,11 +483,12 @@ class Storage {
   }
 
   /**
-   * 清空数据项
-   * @returns {Promise} - 返回清空结果
+   * 清空所有数据项
+   *
+   * @since 1.0.0
+   * @returns {Promise}
    */
   clear() {
-    // 重置
     this.$storeMap = {}
     this.$length = 0
 
@@ -443,27 +496,33 @@ class Storage {
   }
 
   /**
-   * 获取数据库数据项的长度
-   * 该API在使用localStorage存储时行为会有点怪异，不准确
-   * @param {number} keyIndex - 索引序号
-   * @returns {Promise} 返回结果
+   * 获取指定序号的数据项键名
+   * [注]该API在使用localStorage存储时行为会有点怪异，不准确
+   *
+   * @since 1.0.0
+   * @param {number} keyIndex - 序号
+   * @returns {Promise}
    */
   key(keyIndex) {
     return this.$storage.key(keyIndex)
   }
 
   /**
-   * 获取数据库数据项的长度
-   * @returns {Promise} 返回结果
+   * 获取所有数据的键列表
+   *
+   * @since 1.0.0
+   * @returns {Promise}
    */
   keys() {
     return this.$storage.keys()
   }
 
   /**
-   * 获取数据库数据项的长度
+   * 迭代所有数据项
+   *
+   * @since 1.0.0
    * @param {function} iteratorCallback - 迭代函数
-   * @returns {Promise} 返回结果
+   * @returns {Promise}
    */
   iterate(iteratorCallback) {
     return this.$storage.iterate(iteratorCallback)
@@ -471,5 +530,6 @@ class Storage {
 }
 
 export { Storage }
+
 // 导出默认Storage实例
 export default new Storage()
