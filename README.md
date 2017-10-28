@@ -25,8 +25,8 @@
  - `Storage.supports`方法作为静态方法成员，而不是像`localforage#supports`方法作为实例方法成员
  - `Storage`中不存在像`localforage#setDriver`、`localforage#createInstance`、`localforage#defineDriver`等API
  - `Storage#length`作为一个实例属性值，而不是像`localforage#length`作为一个异步方法
- - 增加了一个`Storage#updateItem`方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
  - `Storage#getItem`方法取的值若不存在时，将进入`reject`，抛出`not found`，而不是返回`null`
+ - 增加了一个`Storage#updateItem`方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
 - 扩展支持的一些新的数据类型存储
 - 默认支持`localforage`支持的如下数据类型存储
     - `null`

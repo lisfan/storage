@@ -90,7 +90,7 @@ const _actions = {
 
     // 异步加载，确保自定义driver已经加载完毕
     return defineDriverPromise.then(() => {
-      self.$storage = localforageFactory({
+      self._localforage = localforageFactory({
         ...self.$options,
         // 如果driver不存在，则使用默认driver
         driver: storageDrivers.length > 0 ? storageDrivers : localForageDefaultDriver
@@ -106,8 +106,8 @@ const _actions = {
    */
   readyInit(self) {
     return new Promise((resolve) => {
-      self.$storage.ready().then(async () => {
-        const localforageConfig = self.$storage._config
+      self._localforage.ready().then(async () => {
+        const localforageConfig = self._localforage._config
         self.$driver = DRIVERS_REFLECTOR[localforageConfig.driver]
         self.$name = localforageConfig.name
         self.$description = localforageConfig.description
@@ -139,7 +139,7 @@ const _actions = {
    * @returns {number}
    */
   computedLength(self) {
-    return self.$storage.length().then((length) => {
+    return self._localforage.length().then((length) => {
       self.$length = length
     })
   },
@@ -326,33 +326,120 @@ class Storage {
     this._ready = _actions.init(this)
   }
 
-  // $options = undefined // 实例配置选项
-  // $driver = undefined // 实例选择的驱动器类型
-  // $name = undefined // 实例的命名空间
-  // $description = undefined // 实例描述
-  // $size = undefined // 实例数据库大小，仅针对webSQL
-  // $storeName = undefined // 实例数据库名称，仅针对webSQL和indexedDB
-  // $length = undefined // 已存储数据项的数量
-  // $maxAge = undefined // 数据可存活多长时间，毫秒单位
-  // $storage = undefined // 实例的关联的localforage实例
-  $storeMap = {} // 数据存储映射表
-
-  // 私有成员(避免使用)
-  // _ready = undefined
+  /**
+   * 实例关联的localforage实例
+   *
+   * @since 1.0.0
+   * @private
+   * @readonly
+   */
+  _localforage = undefined
 
   /**
-   * 获取数据库数据项的长度
+   * 实例的完全初始化
+   *
+   * @since 1.0.0
+   * @private
+   * @readonly
+   */
+  _ready = undefined
+
+  /**
+   * 实例的数据与存活时间映射关系表
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $storeMap = {}
+
+  /**
+   * 实例的数据存活时长
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $maxAge = undefined
+
+  /**
+   * 实例配置项
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $options = undefined
+
+  /**
+   * 实例的驱动器类型
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $driver = undefined
+
+  /**
+   * 实例的命名空间
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $name = undefined
+
+  /**
+   * 实例的描述
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $description = undefined
+
+  /**
+   * 实例的数据库大小
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $size = undefined
+
+  /**
+   * 实例的数据库名称
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $storeName = undefined
+
+  /**
+   * 实例的数据项长度
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $length = 0
+
+  /**
+   * 获取实例的数据项长度，实例$length属性的别名属性
+   *
+   * @since 1.0.0
+   * @getter
+   * @readonly
+   * @returns {number}
    */
   get length() {
     return this.$length || 0
   }
 
-  // readonly
+  /**
+   * 设置实例的数据项长度
+   *
+   * @since 1.0.0
+   * @setter
+   * @ignore
+   */
   set length(value) {
   }
 
   /**
-   * 实例已初始化完成
+   * 确保实例已初始化完成
    *
    * @since 1.0.0
    * @returns {Promise}
@@ -363,7 +450,8 @@ class Storage {
 
   /**
    * 获取当前实例的驱动器常量
-   **
+   * [注] 确保实例已初始化完成，否则取不到值
+   *
    * @since 1.0.0
    * @returns {Promise}
    */
@@ -377,7 +465,7 @@ class Storage {
    * @since 1.0.0
    * @param {string} key - 数据项名称
    * @param {*} data - 任意数据
-   * @param {object} options - 自定义存储单元的配置选项
+   * @param {object} options - 自定义存储单元实例的配置选项
    * @param {number} [options.maxAge] - 数据单元项可存活时间（毫秒单位）
    * @param {string} [options.description]- 数据单元项描述
    * @returns {Promise}
@@ -395,7 +483,7 @@ class Storage {
 
     // 针对几种数据类型，进行转换
     // 几种localforage不支持的值进行转换
-    return this.$storage.setItem(key, utils.transformStorageDate(data)).then(async () => {
+    return this._localforage.setItem(key, utils.transformStorageDate(data)).then(async () => {
       await _actions.computedLength(this)
       // 将当前的原始值返回
       return data
@@ -404,6 +492,7 @@ class Storage {
 
   /**
    * 更新数据项数据
+   * 会更新数据单元项实例的更新时间戳
    *
    * @since 1.0.0
    * @param {string} key - 数据项名称
@@ -422,7 +511,7 @@ class Storage {
     // 若已存在，则只更新数据
     dataItem.updateData(data)
 
-    return this.$storage.setItem(key, utils.transformStorageDate(data)).then(() => {
+    return this._localforage.setItem(key, utils.transformStorageDate(data)).then(() => {
       return data
     })
   }
@@ -460,7 +549,7 @@ class Storage {
       return Promise.resolve(dataItem.$data)
     }
 
-    return this.$storage.getItem(key).then((data) => {
+    return this._localforage.getItem(key).then((data) => {
       data = utils.parseStorageDate(data)
       dataItem.fillData(data)
 
@@ -479,7 +568,7 @@ class Storage {
     this.$storeMap[key] = null
     delete this.$storeMap[key]
 
-    return this.$storage.removeItem(key).then(async () => {
+    return this._localforage.removeItem(key).then(async () => {
       await _actions.computedLength(this)
     })
   }
@@ -494,7 +583,7 @@ class Storage {
     this.$storeMap = {}
     this.$length = 0
 
-    return this.$storage.clear()
+    return this._localforage.clear()
   }
 
   /**
@@ -506,7 +595,7 @@ class Storage {
    * @returns {Promise}
    */
   key(keyIndex) {
-    return this.$storage.key(keyIndex)
+    return this._localforage.key(keyIndex)
   }
 
   /**
@@ -516,7 +605,7 @@ class Storage {
    * @returns {Promise}
    */
   keys() {
-    return this.$storage.keys()
+    return this._localforage.keys()
   }
 
   /**
@@ -527,7 +616,7 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
-    return this.$storage.iterate(iteratorCallback)
+    return this._localforage.iterate(iteratorCallback)
   }
 }
 
