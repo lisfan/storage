@@ -211,10 +211,11 @@ const _actions = {
 }
 
 /**
- * 离线存储类
- * 1. storage只会管理存储通过其 API 创建的离线数据，不管理其他自定义的存储数据（数据项会加上命名空间前缀）
- * 2. storage实例会单独建立一个映射表来管理数据单元与数据的映射关系
+ * @description
+ * - storage只会管理存储通过其 API 创建的离线数据，不管理其他自定义的存储数据（数据项会加上命名空间前缀）
+ * - storage实例会单独建立一个映射表来管理数据单元与数据的映射关系
  *
+ * @classdesc 离线存储类
  * @class
  */
 class Storage {
@@ -310,7 +311,7 @@ class Storage {
    * @param {object} options - 配置参数
    * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
    * @param {array|string} [options.driver] -
-   *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE
+   *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE
    * @param {string} [options.name] - 离线存储器命名空间
    * @param {string} [options.description]- 离线存储器描述
    * @param {number} [options.size]- 离线存储器的大小
