@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Storage.html">Storage</a><ul class='methods'><li data-type='method'><a href="Storage.html#.config">config</a></li><li data-type='method'><a href="Storage.html#.supports">supports</a></li><li data-type='method'><a href="Storage.html#ready">ready</a></li><li data-type='method'><a href="Storage.html#driver">driver</a></li><li data-type='method'><a href="Storage.html#setItem">setItem</a></li><li data-type='method'><a href="Storage.html#updateItem">updateItem</a></li><li data-type='method'><a href="Storage.html#getItem">getItem</a></li><li data-type='method'><a href="Storage.html#removeItem">removeItem</a></li><li data-type='method'><a href="Storage.html#clear">clear</a></li><li data-type='method'><a href="Storage.html#key">key</a></li><li data-type='method'><a href="Storage.html#keys">keys</a></li><li data-type='method'><a href="Storage.html#iterate">iterate</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#driver">driver</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1 id="storage-">Storage 离线存储器</h1>
+<p>底层依赖了<a href="https://localforage.github.io/localForage/#localforage">localforage</a>插件，并自封装了支持<code>sessionStorage</code>的一个扩展插件</p>
+<p>提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，所以为了确保它已经完全初始化，需将逻辑代码写在调用<code>ready()</code>方法后的<code>resolved</code>函数里</p>
+<p>提供的API模仿<code>localforage-like</code>风格，但增减了一部分，同时也可能更改了部分方法的逻辑，但大致上还是可以参考文档localforage的文档的</p>
+<p>支持<code>localforage</code>所有全局配置项参数，各配置参数作用也是相同的，但细微之处会有差异，且额外扩展了一些新的配置项，同时支持自定义数据存储单元的配置项</p>
+<p>额外扩展了如下配置选项</p>
+<ul>
+<li>数据存储有效期控制<code>maxAge</code>：默认数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间</li>
+</ul>
+<p>与 <code>localforage</code> 模块的的一些区别</p>
+<ul>
+<li>驱动器的常量值变化，改成以下对应的值，且作为了是类的静态属性成员<ul>
+<li><code>Storage.SESSIONSTORAGE</code>: 使用<code>sessionstorage</code>离线存储，默认项</li>
+<li><code>Storage.LOCALSTORAGE</code>: 使用<code>localstorage</code>离线存储</li>
+<li><code>Storage.INDEXEDDB</code>: 使用<code>indexedDB</code>离线存储</li>
+<li><code>Storage.WEBSQL</code>: 使用<code>webSQL</code>离线存储</li>
+</ul>
+</li>
+<li>驱动器的默认使用顺序变更：根据浏览器支持情况，优先选择<code>sessionStorage</code>，之后再根据<code>localforage</code>的默认值选择</li>
+<li><code>Storage</code>实例移除类似<code>localforage</code> API末尾的<code>callback</code>形参</li>
+<li><code>Storage.supports</code>方法作为静态方法成员，而不是像<code>localforage#supports</code>方法作为实例方法成员</li>
+<li><code>Storage</code>中不存在像<code>localforage#setDriver</code>、<code>localforage#createInstance</code>、<code>localforage#defineDriver</code>等API</li>
+<li><code>Storage#length</code>作为一个实例属性值，而不是像<code>localforage#length</code>作为一个异步方法</li>
+<li>增加了一个<code>Storage#updateItem</code>方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）</li>
+<li><code>Storage#getItem</code>方法取的值若不存在时，将进入<code>reject</code>，抛出<code>not found</code>，而不是返回<code>null</code><ul>
+<li>扩展支持的一些新的数据类型存储</li>
+<li>默认支持<code>localforage</code>支持的如下数据类型存储</li>
+<li><code>null</code></li>
+<li><code>Number</code></li>
+<li><code>String</code></li>
+<li><code>Array</code></li>
+<li><code>Object</code></li>
+<li><code>Blob</code></li>
+<li><code>ArrayBuffer</code></li>
+<li><code>Float32Array</code></li>
+<li><code>Float64Array</code></li>
+<li><code>Int8Array</code></li>
+<li><code>Int16Array</code></li>
+<li><code>Int32Array</code></li>
+<li><code>Uint8Array</code></li>
+<li><code>Uint8ClampedArray</code></li>
+<li><code>Uint16Array</code></li>
+<li><code>Uint32Array</code></li>
+<li>在此基础上又扩充了对如下数据类型的存储（因为在某些实际的使用场景中还是需要用的到，内部存储时将使用了如下格式进行存储）</li>
+<li><code>undefined</code> =&gt; <code>[storage undefined]#undefined</code></li>
+<li><code>NaN</code> =&gt; <code>[storage nan]#NaN</code></li>
+<li><code>Infinity</code> =&gt; <code>[storage infinity]#Infinity</code></li>
+<li><code>-Infinity</code> =&gt; <code>[storage infinity]#-Infinity</code></li>
+<li><code>new Date()</code> =&gt; <code>[storage date]#1507600033804</code></li>
+<li><code>/regexp/g</code> =&gt; <code>[storage regexp]#/regexp/g</code></li>
+<li><code>new RegExp('regexp', 'g')</code> =&gt; <code>[storage regexp]#/regexp/g</code></li>
+<li><code>function(){}`` =&gt;</code>[storage function]#function(){}`</li>
+<li><code>new Function('a', 'b', 'return a+b')</code> =&gt; <code>[storage function]#function anonymous(){}</code></li>
+<li>不对以下数据类型进行存储</li>
+<li><code>Symbol</code></li>
+<li><code>Error</code></li>
+</ul>
+</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        index.js
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>1.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li><a href="mailto:goolisfan@gmail.com">lisfan</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>离线存储控制器</p></div>
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Oct 28 2017 21:59:48 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
