@@ -1,5 +1,5 @@
 /**
- * storage命名空间
+ * storage 驱动器常量枚举
  * @enum
  */
 export default {
