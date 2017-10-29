@@ -4,11 +4,28 @@
  * @version 1.1.0
  * @licence MIT
  */
-
+// const a = function () {
+//   return Promise.resolve().then(() => {
+//     console.log('sssss')
+//   })
+// }
+//
+// const b = function () {
+//   console.log('2222')
+//
+//     [1, 3, 4].forEach(async () => {
+//     await  a()
+//   })
+//
+//   console.log('3333')
+// }
+//
+// b()
 import localforage from 'localforage'
 import validation from '@~lisfan/validation'
 import _ from './utils/utils'
 
+import DATA_TYPES from './enums/data-types'
 import STORAGE_DRIVERS from './enums/storage-drivers'
 import LOCALFORAGE_DRIVERS from './enums/localforage-drivers'
 import DRIVERS_REFLECTOR from './enums/drivers-reflector'
@@ -106,29 +123,27 @@ const _actions = {
    * @param {Storage} self - Stoarge实例
    * @returns {Promise}
    */
-  readyInit(self) {
-    return new Promise((resolve) => {
-      self._storage.ready().then(async () => {
-        const localforageConfig = self._storage._config
-        self.$driver = DRIVERS_REFLECTOR[localforageConfig.driver]
-        self.$name = localforageConfig.name
-        self.$description = localforageConfig.description
-        self.$storeName = localforageConfig.storeName
-        self.$size = localforageConfig.size
+  async readyInit(self) {
+    await self._storage.ready().then(async () => {
+      const localforageConfig = self._storage._config
+      self.$driver = DRIVERS_REFLECTOR[localforageConfig.driver]
+      self.$name = localforageConfig.name
+      self.$description = localforageConfig.description
+      self.$storeName = localforageConfig.storeName
+      self.$size = localforageConfig.size
 
-        self.$maxAge = self.$options.maxAge
+      self.$maxAge = self.$options.maxAge
 
-        // （优先）等待数据长度计算
-        await this.computedLength(self)
-        // 解析离线存储中的storemap
-        await this.parseStoreMap(self)
+      // （优先）等待数据长度计算
+      await this.computedLength(self)
+      // 解析离线存储中的storemap
+      await this.parseStoreMap(self)
 
-        // 绑定事件(必须等待上两个完成)
-        this.bindRecordStoreMapEvent(self)
-
-        resolve()
-      })
+      // 绑定事件(必须等待上两个完成)
+      this.bindRecordStoreMapEvent(self)
     })
+
+    return Promise.resolve()
   },
   /**
    * 计算数据长度长度
@@ -236,23 +251,23 @@ const _actions = {
   transformStorageDate(data) {
     switch (validation.typeof(data)) {
       case 'undefined':
-        return DATA_TYPE.UNDEFINED + 'undefined'
+        return DATA_TYPES.UNDEFINED + 'undefined'
       case 'date':
-        return DATA_TYPE.DATE + data.getTime()
+        return DATA_TYPES.DATE + data.getTime()
       case 'regexp':
-        return DATA_TYPE.REGEXP + data.toString()
+        return DATA_TYPES.REGEXP + data.toString()
       case 'function':
-        return DATA_TYPE.FUNCTION + data.toString()
+        return DATA_TYPES.FUNCTION + data.toString()
       case 'number':
         if (validation.isNaN(data)) {
           // 处理是NaN的情况
-          return DATA_TYPE.NAN + 'NaN'
+          return DATA_TYPES.NAN + 'NaN'
         } else if (!validation.isFinite(data) && data > 0) {
           // 处理是NaN的情况
-          return DATA_TYPE.INFINITY + 'Infinity'
+          return DATA_TYPES.INFINITY + 'Infinity'
         } else if (!validation.isFinite(data) && data < 0) {
           // 处理是NaN的情况
-          return DATA_TYPE.INFINITY + '-Infinity'
+          return DATA_TYPES.INFINITY + '-Infinity'
         }
 
         // 其他情况的number直接返回
@@ -604,32 +619,32 @@ class Storage {
     })
   }
 
-  /**
-   * 更新数据项数据
-   * 会更新数据单元项实例的更新时间戳
-   *
-   * @deprecated 1.1.0
-   * @since 1.0.0
-   * @param {string} name - 数据项名称
-   * @param {*} data - 任意数据
-   * @returns {Promise}
-   */
-  updateItem(name, data) {
-    // 判断是否已存在该项
-    const dataItem = this.$storeMap[name]
-
-    // 若未存在，则进行初始化
-    if (!(dataItem instanceof DataItem)) {
-      return this.setItem(name, data)
-    }
-
-    // 若已存在，则只更新数据
-    dataItem.updateData(data)
-
-    return this._storage.setItem(name, _actions.transformStorageDate(data)).then(() => {
-      return data
-    })
-  }
+  // /**
+  //  * 更新数据项数据
+  //  * 会更新数据单元项实例的更新时间戳
+  //  *
+  //  * @deprecated 1.1.0
+  //  * @since 1.0.0
+  //  * @param {string} name - 数据项名称
+  //  * @param {*} data - 任意数据
+  //  * @returns {Promise}
+  //  */
+  // updateItem(name, data) {
+  //   // 判断是否已存在该项
+  //   const dataItem = this.$storeMap[name]
+  //
+  //   // 若未存在，则进行初始化
+  //   if (!(dataItem instanceof DataItem)) {
+  //     return this.setItem(name, data)
+  //   }
+  //
+  //   // 若已存在，则只更新数据
+  //   dataItem.updateData(data)
+  //
+  //   return this._storage.setItem(name, _actions.transformStorageDate(data)).then(() => {
+  //     return data
+  //   })
+  // }
 
   /**
    * 获取指定数据项数据
@@ -740,20 +755,33 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
-    // return Promise.resolve().then(() => {
-    //   let keys = []
-    //   Object.entries(this.$storeMap).forEach(([name, dataItem]) => {
-    //     if (dataItem.isOutdated()) {
-    //       this.removeItem(name)
-    //     } else {
-    //       keys.push(name)
-    //     }
-    //   })
-    //
-    //   return keys
-    // })
+    return new Promise((resolve, reject) => {
+      let storeMap = {}
 
-    return this._storage.iterate(iteratorCallback)
+      // 导师步解析数据，过滤已过期数据
+      this._storage.iterate((data, name, index) => {
+        const dataItem = this.$storeMap[name]
+        if (dataItem.isOutdated()) {
+          this.removeItem(name)
+        } else {
+          // 解析数据类型
+          dataItem.fillData(_actions.parseStorageDate(data))
+          storeMap[name] = dataItem
+        }
+      }).then(() => {
+        let result
+
+        Object.entries(storeMap).every(([name, dataItem], index) => {
+          result = iteratorCallback(dataItem.$data, name, index + 1)
+
+          return validation.isUndefined(result)
+        })
+
+        resolve(result)
+      }).catch(() => {
+        reject()
+      })
+    })
   }
 }
 
