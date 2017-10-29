@@ -9,59 +9,40 @@ import localforage from 'localforage'
 import sessionStorageWrapper from './utils/localforage-sessionstoragewrapper'
 
 import validation from '@~lisfan/validation'
-import _ from './utils/lodash-simple'
-import utils from './utils/utils'
+import _ from './utils/utils'
 
 import DataItem from './models/data-item'
 
+import DATA_TYPE from './enums/data-types'
 import STORAGE_DRIVERS from './enums/storage-drivers'
-import DRIVERS_REFLECTOR from './enums/localforage-drivers-reflector'
+import DRIVERS_REFLECTOR from './enums/drivers-reflector'
+
+// 增加新的sessionStorage驱动器
+const definedSessionDriverPromise = localforage.defineDriver(sessionStorageWrapper)
 
 // localForage默认配置项
 const localForageDefaultConfig = localforage._defaultConfig
 
 /* eslint-disable max-len */
+// localForage默认驱动器列表，同时优先选择sessionStorage存储
 const localForageDefaultDriver = [sessionStorageWrapper._driver].concat(localForageDefaultConfig._driver)
 /* eslint-enable max-len */
 
-/**
- * localforage实例工厂
- *
- * @ignore
- * @param {object} options - 配置项
- * @returns {LocalForage}
- */
-const localforageFactory = function (options) {
-  return localforage.createInstance({
-    driver: localForageDefaultDriver,
-    ...options,
-  })
-}
-
-// 定义驱动器Promise
-const defineDriverPromise = localforage.defineDriver(sessionStorageWrapper)
-
-// 创建一个名为storeMap的实例，用来存储各个DataItem实例
-// - 目的是避免使用自身数据库进行存储storeMap，而引来的一些不必要的麻烦
-// - 比如，如果直接放置在自身属性上，会占用一个存储项，且部分api调用时，还需要排除该项
-const STORE_MAP_NAMESPACE = 'STORE_MAP'
-let storeMapStorage // 只保持一个实例即可，不重复创建
-
-// 创建storeMap的localforage实例
-const storeMapStoragePromise = function () {
-  return defineDriverPromise.then(() => {
-    if (!storeMapStorage) {
-      return localforageFactory({
-        name: STORE_MAP_NAMESPACE
-      })
-    }
-
-    return storeMapStorage
-  })
-}
-
 // 私有方法集合
 const _actions = {
+  /**
+   * localforage实例工厂
+   *
+   * @ignore
+   * @param {object} options - 配置项
+   * @returns {LocalForage}
+   */
+  localforageFactory(options) {
+    return localforage.createInstance({
+      ...options,
+      driver: options.driver && options.driver.length > 0 ? options.driver : localForageDefaultDriver,
+    })
+  },
   /**
    * storage实例初始化
    * 1. 创建localforage实例
@@ -73,27 +54,49 @@ const _actions = {
    * @return {Promise}
    */
   async init(self) {
-    await this.createInstance(self)
+    /* eslint-disable max-len */
+    const storageDrivers = _actions.transformDriver(_.castArray(self.$options.driver))
+    /* eslint-enable max-len */
+
+    self._storeMapStorage = await this.createStoreMapStorage(self, storageDrivers)
+
+    self._storage = await this.createStorage(self, storageDrivers)
+
     return this.readyInit(self)
   },
   /**
-   * 创建storage实例
+   * 创建存储storeMap的localforage实例
+   * - 用来存储各个DataItem实例
+   * - 该离线存储器的实例配置driver值参考用户自定义的驱动器
+   * - 目的是避免使用自身数据库进行存储storeMap，而引来的一些不必要的麻烦
+   * - 比如，如果直接放置在自身属性上，会占用一个存储项，且部分api调用时，还需要排除该项
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
    * @returns {Promise}
    */
-  createInstance(self) {
-    /* eslint-disable max-len */
-    const storageDrivers = utils.transformStorageDriverToLocalforageDriver(_.castArray(self.$options.driver))
-    /* eslint-enable max-len */
-
+  createStoreMapStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
-    return defineDriverPromise.then(() => {
-      self._localforage = localforageFactory({
+    return definedSessionDriverPromise.then(() => {
+      return this.localforageFactory({
+        name: 'STORE_MAP',
+        driver: storageDrivers
+      })
+    })
+  },
+  /**
+   * 创建存储数据的localforage实例
+   *
+   * @since 1.0.0
+   * @param {Storage} self - Stoarge实例
+   * @returns {Promise}
+   */
+  createStorage(self, storageDrivers) {
+    // 异步加载，确保自定义driver已经加载完毕
+    return definedSessionDriverPromise.then(() => {
+      return this.localforageFactory({
         ...self.$options,
-        // 如果driver不存在，则使用默认driver
-        driver: storageDrivers.length > 0 ? storageDrivers : localForageDefaultDriver
+        driver: storageDrivers
       })
     })
   },
@@ -106,8 +109,8 @@ const _actions = {
    */
   readyInit(self) {
     return new Promise((resolve) => {
-      self._localforage.ready().then(async () => {
-        const localforageConfig = self._localforage._config
+      self._storage.ready().then(async () => {
+        const localforageConfig = self._storage._config
         self.$driver = DRIVERS_REFLECTOR[localforageConfig.driver]
         self.$name = localforageConfig.name
         self.$description = localforageConfig.description
@@ -139,7 +142,7 @@ const _actions = {
    * @returns {number}
    */
   computedLength(self) {
-    return self._localforage.length().then((length) => {
+    return self._storage.length().then((length) => {
       self.$length = length
     })
   },
@@ -153,8 +156,8 @@ const _actions = {
    * @returns {Promise}
    */
   async parseStoreMap(self) {
-    return storeMapStoragePromise().then((storage) => {
-      return storage.getItem(self.$name).then((data) => {
+    return self._storeMapStorage.ready(() => {
+      return self._storeMapStorage.getItem(self.$name).then((data) => {
         // 若以存在，且数据项长度大于0
         if (data && self.length > 0) {
           self.$storeMap = _.mapValues(data, (options) => {
@@ -180,7 +183,7 @@ const _actions = {
       if (validation.isNumber(dataItem.$maxAge)) {
         storeMap[key] = {
           description: dataItem.$description,
-          updateTimeStamp: dataItem.$updateTimeStamp,
+          timeStamp: dataItem.$timeStamp,
           maxAge: dataItem.$maxAge,
         }
       }
@@ -202,12 +205,107 @@ const _actions = {
       const filteredStoreMap = this.filterStoreMap(self)
       const filteredStoreMapLength = Object.keys(filteredStoreMap).length
       if (filteredStoreMapLength > 0) {
-        storeMapStoragePromise().then((storage) => {
-          storage.setItem(self.$name, filteredStoreMap)
+        self._storeMapStorage.ready(() => {
+          self._storeMapStorage.setItem(self.$name, filteredStoreMap)
         })
       }
     })
   },
+  /**
+   * 转换storage驱动器和localforage驱动器的映射关系
+   *
+   * @since 1.0.0
+   * @param {string[]} dirver - storage驱动器列表或localforage驱动器列表
+   * @returns {symbol[]}
+   */
+  transformDriver(drivers) {
+    const transformedDriver = drivers.map((driver) => {
+      return DRIVERS_REFLECTOR[driver]
+    })
+
+    // 移除假值
+    return _.compact(transformedDriver)
+  },
+
+  /**
+   * 转换成可离线存储的格式
+   *
+   * @since 1.0.0
+   * @param {*} data - 任意数据
+   * @returns {*}
+   */
+  transformStorageDate(data) {
+    switch (validation.typeof(data)) {
+      case 'undefined':
+        return DATA_TYPE.UNDEFINED + 'undefined'
+      case 'date':
+        return DATA_TYPE.DATE + data.getTime()
+      case 'regexp':
+        return DATA_TYPE.REGEXP + data.toString()
+      case 'function':
+        return DATA_TYPE.FUNCTION + data.toString()
+      case 'number':
+        if (validation.isNaN(data)) {
+          // 处理是NaN的情况
+          return DATA_TYPE.NAN + 'NaN'
+        } else if (!validation.isFinite(data) && data > 0) {
+          // 处理是NaN的情况
+          return DATA_TYPE.INFINITY + 'Infinity'
+        } else if (!validation.isFinite(data) && data < 0) {
+          // 处理是NaN的情况
+          return DATA_TYPE.INFINITY + '-Infinity'
+        }
+
+        // 其他情况的number直接返回
+        return data
+      default:
+        return data
+    }
+  },
+  /**
+   * 解析数据时的正则匹配模式
+   * @since 1.0.0
+   */
+  PARSE_DATA_REGEXP: /^\[storage ([^\]#]+)\]#([\s\S]+)$/,
+  /**
+   * 解析要存储的值
+   *
+   * @since 1.0.0
+   * @param {*} data - 任意数据
+   * @returns {*}
+   */
+  parseStorageDate(data) {
+    let type
+    let value
+
+    if (validation.isString(data) && data.startsWith('[storage')) {
+      const matched = data.match(this.PARSE_DATA_REGEXP)
+
+      if (matched) {
+        type = matched[1]
+        value = matched[2]
+      }
+    }
+
+    /* eslint-disable no-eval*/
+    switch (type) {
+      case 'undefined':
+        return undefined
+      case 'date':
+        return new Date(Number(value))
+      case 'regexp':
+        return eval(`(${value})`)
+      case 'function':
+        return eval(`(${value})`)
+      case 'nan':
+        return eval(`(${value})`)
+      case 'infinity':
+        return eval(`(${value})`)
+      default:
+        return data
+    }
+    /* eslint-enable no-eval*/
+  }
 }
 
 /**
@@ -264,7 +362,7 @@ class Storage {
    */
   static options = {
     maxAge: -1,
-    driver: utils.transformLocalforageDriverToStorageDriver(localForageDefaultDriver),
+    driver: _actions.transformDriver(localForageDefaultDriver),
     name: 'storage',
     description: localForageDefaultConfig.description,
     size: localForageDefaultConfig.size,
@@ -328,13 +426,22 @@ class Storage {
   }
 
   /**
+   * 实例关联的存储storeMap的localforage实例
+   *
+   * @since 1.0.0
+   * @private
+   * @readonly
+   */
+  _storeMapStorage = undefined
+
+  /**
    * 实例关联的localforage实例
    *
    * @since 1.0.0
    * @private
    * @readonly
    */
-  _localforage = undefined
+  _storage = undefined
 
   /**
    * 实例的完全初始化
@@ -436,8 +543,8 @@ class Storage {
    * @setter
    * @ignore
    */
-  set length(value) {
-  }
+  // set length(value) {
+  // }
 
   /**
    * 确保实例已初始化完成
@@ -464,27 +571,34 @@ class Storage {
    * 存储数据项到离线存储器
    *
    * @since 1.0.0
-   * @param {string} key - 数据项名称
+   * @param {string} name - 数据项名称
    * @param {*} data - 任意数据
    * @param {object} options - 自定义存储单元实例的配置选项
    * @param {number} [options.maxAge] - 数据单元项可存活时间（毫秒单位）
    * @param {string} [options.description]- 数据单元项描述
    * @returns {Promise}
    */
-  setItem(key, data, options = {}) {
+  setItem(name, data, options = {}) {
+    const maxAge = validation.isNumber(options.maxAge) ? options.maxAge : this.$maxAge
+
+    // 若时效性为0，则不存储到store中，直接返回结果
+    if (maxAge === 0) {
+      return Promise.resolve(data)
+    }
+
     // 往storeMap中插入一条记录
     // [误]判断$store是否已存在，若已存在，则进行更新数据，若不存在，则初始化
     // [新]该方法将进行覆盖，重新需实例化
-    this.$storeMap[key] = new DataItem({
+    this.$storeMap[name] = new DataItem({
       ...options,
-      maxAge: validation.isNumber(options.maxAge) ? options.maxAge : this.$maxAge, // 默认取storage上的存活时间
-      name: key, // 名称强制指定为setItem的key参数
-      data
+      maxAge, // 默认取storage上的存活时间
+      data,
+      name: name // 名称强制指定为setItem的name参数
     })
 
     // 针对几种数据类型，进行转换
     // 几种localforage不支持的值进行转换
-    return this._localforage.setItem(key, utils.transformStorageDate(data)).then(async () => {
+    return this._storage.setItem(name, _actions.transformStorageDate(data)).then(async () => {
       await _actions.computedLength(this)
       // 将当前的原始值返回
       return data
@@ -495,53 +609,50 @@ class Storage {
    * 更新数据项数据
    * 会更新数据单元项实例的更新时间戳
    *
+   * @deprecated 1.1.0
    * @since 1.0.0
-   * @param {string} key - 数据项名称
+   * @param {string} name - 数据项名称
    * @param {*} data - 任意数据
    * @returns {Promise}
    */
-  updateItem(key, data) {
+  updateItem(name, data) {
     // 判断是否已存在该项
-    const dataItem = this.$storeMap[key]
+    const dataItem = this.$storeMap[name]
 
     // 若未存在，则进行初始化
     if (!(dataItem instanceof DataItem)) {
-      return this.setItem(key, data)
+      return this.setItem(name, data)
     }
 
     // 若已存在，则只更新数据
     dataItem.updateData(data)
 
-    return this._localforage.setItem(key, utils.transformStorageDate(data)).then(() => {
+    return this._storage.setItem(name, _actions.transformStorageDate(data)).then(() => {
       return data
     })
   }
 
   /**
    * 获取指定数据项数据
-   * 若离线存储器中取不到值，会进入rejected('notfound')
-   * 若离线存储器中值已过期，会进入rejected('outdated')
    *
    * @since 1.0.0
-   * @param {string} key - 数据项名称
+   * @param {string} name - 数据项名称
    * @returns {Promise}
    */
-  getItem(key) {
-    const nowTimeStamp = Date.now()
+  getItem(name) {
+    const dataItem = this.$storeMap[name]
 
-    const dataItem = this.$storeMap[key]
-
-    // 如果DataItem实例不存在，或者DataItem实例的maxAge属性不存在时
+    // 如果DataItem实例不存在，或者DataItem实例的maxAge属性不存在
     if (!dataItem || !validation.isNumber(dataItem.$maxAge)) {
-      return Promise.reject('notfound')
+      return Promise.reject('outdate')
     }
 
     // maxAge的值大于0
-    if (dataItem.$maxAge === 0
-      || (dataItem.$maxAge > 0 && (dataItem.$updateTimeStamp + dataItem.$maxAge) < nowTimeStamp)) {
-      dataItem.fillData(undefined)
+    if (dataItem.isOutdated()) {
+      // 移除数据
+      this.removeItem(name)
 
-      return Promise.reject('outdated')
+      return Promise.reject('outdate')
     }
 
     // 优化性能
@@ -550,8 +661,9 @@ class Storage {
       return Promise.resolve(dataItem.$data)
     }
 
-    return this._localforage.getItem(key).then((data) => {
-      data = utils.parseStorageDate(data)
+    return this._storage.getItem(name).then((data) => {
+      // 解析数据类型
+      data = _actions.parseStorageDate(data)
       dataItem.fillData(data)
 
       return data
@@ -562,14 +674,14 @@ class Storage {
    * 移除数据项
    *
    * @since 1.0.0
-   * @param {string} key - 数据项名称
+   * @param {string} name - 数据项名称
    * @returns {Promise}
    */
-  removeItem(key) {
-    this.$storeMap[key] = null
-    delete this.$storeMap[key]
+  removeItem(name) {
+    this.$storeMap[name] = null
+    delete this.$storeMap[name]
 
-    return this._localforage.removeItem(key).then(async () => {
+    return this._storage.removeItem(name).then(async () => {
       await _actions.computedLength(this)
     })
   }
@@ -584,29 +696,41 @@ class Storage {
     this.$storeMap = {}
     this.$length = 0
 
-    return this._localforage.clear()
+    return this._storage.clear()
   }
 
   /**
    * 获取指定序号的数据项键名
    * [注]该API在使用localStorage存储时行为会有点怪异，不准确
    *
+   * @deprecated 1.1.0
    * @since 1.0.0
    * @param {number} keyIndex - 序号
    * @returns {Promise}
    */
   key(keyIndex) {
-    return this._localforage.key(keyIndex)
+    return this._storage.key(keyIndex)
   }
 
   /**
-   * 获取所有数据的键列表
+   * 获取所有时效性活的数据的键列表
    *
    * @since 1.0.0
    * @returns {Promise}
    */
   keys() {
-    return this._localforage.keys()
+    return Promise.resolve().then(() => {
+      let keys = []
+      Object.entries(this.$storeMap).forEach(([name, dataItem]) => {
+        if (dataItem.isOutdated()) {
+          this.removeItem(name)
+        } else {
+          keys.push(name)
+        }
+      })
+
+      return keys
+    })
   }
 
   /**
@@ -617,7 +741,20 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
-    return this._localforage.iterate(iteratorCallback)
+    // return Promise.resolve().then(() => {
+    //   let keys = []
+    //   Object.entries(this.$storeMap).forEach(([name, dataItem]) => {
+    //     if (dataItem.isOutdated()) {
+    //       this.removeItem(name)
+    //     } else {
+    //       keys.push(name)
+    //     }
+    //   })
+    //
+    //   return keys
+    // })
+
+    return this._storage.iterate(iteratorCallback)
   }
 }
 

@@ -1,121 +1,48 @@
 /**
- * 工具辅助函数
+ * 模拟 lodash API
  */
-import _ from './lodash-simple'
 import validation from '@~lisfan/validation'
-
-import DATA_TYPE from '../enums/data-types'
-import DRIVERS_REFLECTOR from '../enums/drivers-reflector'
 
 export default {
   /**
-   * 转换storage驱动器列表为localforage驱动器列表
+   * 移除了数组中所有的假值。例如：false、null、 0、""、undefined， 以及NaN 都是 “假值”.
    *
    * @since 1.0.0
-   * @param {string[]} localforageDriver - localforage驱动器列表
-   * @returns {symbol[]}
+   * @param {array} array - 数组
+   * @return {array}
    */
-  transformLocalforageDriverToStorageDriver(localforageDriver) {
-    const storageDriver = localforageDriver.map((driver) => {
-      return DRIVERS_REFLECTOR[driver]
+  compact(array) {
+    return array.filter((item) => {
+      return !!item
+    })
+  },
+  /**
+   * 如果 value 不是数组, 那么强制转为数组
+   *
+   * @since 1.0.0
+   * @param {*} value - 任意值
+   * @returns {array}
+   */
+  castArray(value) {
+    return validation.isArray(value) ? value : [value]
+  },
+  /**
+   * 创建一个新对象，对象的key相同，值是通过 iteratee 产生的。
+   * iteratee 会传入3个参数： (value, key, object)
+   *
+   * @since 1.0.0
+   * @param {object} obj - 对象
+   * @param {function} iterate - 迭代函数
+   * @returns {object}
+   */
+  mapValues(obj, iterate) {
+    let newObj = {}
+
+    Object.entries(obj).forEach(([key, value]) => {
+      newObj[key] = iterate(value, key, obj)
     })
 
-    // 移除假值
-    return _.compact(storageDriver)
-  },
-  /**
-   * 转换storage驱动器列表为localforage驱动器列表
-   *
-   * @since 1.0.0
-   * @param {symbol[]} storageDriver - storage驱动器列表
-   * @returns {string[]}
-   */
-  transformStorageDriverToLocalforageDriver(storageDriver) {
-    const localforageDriver = storageDriver.map((driver) => {
-      return DRIVERS_REFLECTOR[driver]
-    })
-
-    // 移除假值
-    return _.compact(localforageDriver)
-  },
-
-  /**
-   * 转换成可离线存储的格式
-   *
-   * @since 1.0.0
-   * @param {*} data - 任意数据
-   * @returns {*}
-   */
-  transformStorageDate(data) {
-    switch (validation.typeof(data)) {
-      case 'undefined':
-        return DATA_TYPE.UNDEFINED + 'undefined'
-      case 'date':
-        return DATA_TYPE.DATE + data.getTime()
-      case 'regexp':
-        return DATA_TYPE.REGEXP + data.toString()
-      case 'function':
-        return DATA_TYPE.FUNCTION + data.toString()
-      case 'number':
-        if (validation.isNaN(data)) {
-          // 处理是NaN的情况
-          return DATA_TYPE.NAN + 'NaN'
-        } else if (!validation.isFinite(data) && data > 0) {
-          // 处理是NaN的情况
-          return DATA_TYPE.INFINITY + 'Infinity'
-        } else if (!validation.isFinite(data) && data < 0) {
-          // 处理是NaN的情况
-          return DATA_TYPE.INFINITY + '-Infinity'
-        }
-
-        // 其他情况的number直接返回
-        return data
-      default:
-        return data
-    }
-  },
-  /**
-   * 解析数据时的正则匹配模式
-   * @since 1.0.0
-   */
-  PARSE_DATA_REGEXP: /^\[storage ([^\]#]+)\]#([\s\S]+)$/,
-  /**
-   * 解析要存储的值
-   *
-   * @since 1.0.0
-   * @param {*} data - 任意数据
-   * @returns {*}
-   */
-  parseStorageDate(data) {
-    let type
-    let value
-
-    if (validation.isString(data) && data.startsWith('[storage')) {
-      const matched = data.match(this.PARSE_DATA_REGEXP)
-
-      if (matched) {
-        type = matched[1]
-        value = matched[2]
-      }
-    }
-
-    /* eslint-disable no-eval*/
-    switch (type) {
-      case 'undefined':
-        return undefined
-      case 'date':
-        return new Date(Number(value))
-      case 'regexp':
-        return eval(`(${value})`)
-      case 'function':
-        return eval(`(${value})`)
-      case 'nan':
-        return eval(`(${value})`)
-      case 'infinity':
-        return eval(`(${value})`)
-      default:
-        return data
-    }
-    /* eslint-enable no-eval*/
+    return newObj
   }
+
 }

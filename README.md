@@ -3,6 +3,12 @@
 [API documentation](https://lisfan.github.io/storage/)
 
 ## Feature 特性
+
+- 让离线存储支持存储更多的数据类型
+- 为离线存储增加有效期，若已超时则不读取
+
+## Detail 详情
+
 底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)模块，并且封装了让localforage支持`sessionStorage`存储的一个扩展插件
 
 提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，所以为了确保它已经完全初始化，需将逻辑代码写在调用`ready()`方法后的`resolved`函数里
@@ -59,7 +65,7 @@
     - `Symbol`
     - `Error`
 
-## 安装
+## Install 安装
 
 ```bash
 npm install -S @~lisfan/storage
