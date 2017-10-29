@@ -4,23 +4,7 @@
  * @version 1.1.0
  * @licence MIT
  */
-// const a = function () {
-//   return Promise.resolve().then(() => {
-//     console.log('sssss')
-//   })
-// }
-//
-// const b = function () {
-//   console.log('2222')
-//
-//     [1, 3, 4].forEach(async () => {
-//     await  a()
-//   })
-//
-//   console.log('3333')
-// }
-//
-// b()
+
 import localforage from 'localforage'
 import validation from '@~lisfan/validation'
 import _ from './utils/utils'
@@ -318,7 +302,27 @@ const _actions = {
       default:
         return data
     }
-    /* eslint-enable no-eval*/
+  },
+  /* eslint-enable no-eval*/
+  /**
+   * 过滤时效还未超时的数据
+   */
+  filterInvalidData(self) {
+    let storeMap = {}
+
+    // 导师步解析数据，过滤已过期数据
+    return self._storage.iterate((data, name, index) => {
+      const dataItem = self.$storeMap[name]
+      if (dataItem.isOutdated()) {
+        self.removeItem(name)
+      } else {
+        // 解析数据类型
+        dataItem.fillData(_actions.parseStorageDate(data))
+        storeMap[name] = dataItem
+      }
+    }).then(() => {
+      return storeMap
+    })
   }
 }
 
@@ -713,18 +717,18 @@ class Storage {
     return this._storage.clear()
   }
 
-  /**
-   * 获取指定序号的数据项键名
-   * [注]该API在使用localStorage存储时行为会有点怪异，不准确
-   *
-   * @deprecated 1.1.0
-   * @since 1.0.0
-   * @param {number} keyIndex - 序号
-   * @returns {Promise}
-   */
-  key(keyIndex) {
-    return this._storage.key(keyIndex)
-  }
+  // /**
+  //  * 获取指定序号的数据项键名
+  //  * [注]该API在使用localStorage存储时行为会有点怪异，不准确
+  //  *
+  //  * @deprecated 1.1.0
+  //  * @since 1.0.0
+  //  * @param {number} keyIndex - 序号
+  //  * @returns {Promise}
+  //  */
+  // key(keyIndex) {
+  //   return this._storage.key(keyIndex)
+  // }
 
   /**
    * 获取所有时效性活的数据的键列表
@@ -755,32 +759,16 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
-    return new Promise((resolve, reject) => {
-      let storeMap = {}
+    return _actions.filterInvalidData(this).then((storeMap) => {
+      let result
 
-      // 导师步解析数据，过滤已过期数据
-      this._storage.iterate((data, name, index) => {
-        const dataItem = this.$storeMap[name]
-        if (dataItem.isOutdated()) {
-          this.removeItem(name)
-        } else {
-          // 解析数据类型
-          dataItem.fillData(_actions.parseStorageDate(data))
-          storeMap[name] = dataItem
-        }
-      }).then(() => {
-        let result
+      Object.entries(storeMap).every(([name, dataItem], index) => {
+        result = iteratorCallback(dataItem.$data, name, index + 1)
 
-        Object.entries(storeMap).every(([name, dataItem], index) => {
-          result = iteratorCallback(dataItem.$data, name, index + 1)
-
-          return validation.isUndefined(result)
-        })
-
-        resolve(result)
-      }).catch(() => {
-        reject()
+        return validation.isUndefined(result)
       })
+
+      return result
     })
   }
 }
