@@ -5,17 +5,19 @@
 ## Feature 特性
 
 - 让离线存储支持存储更多的数据类型
-- 为离线存储增加有效期，若已超时则不读取
+- 为离线存储增加有效期，若已超过时效则不读取
 
 ## Detail 详情
 
-底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)模块，并且封装了让localforage支持`sessionStorage`存储的一个扩展插件
+底层依赖了[localforage](https://localforage.github.io/localForage/#localforage)模块，并且封装了让localforage支持`sessionStorage`存储的一个扩展插件，顺便修复了该插件iterate()方法的bug
 
 提供的大多数方法都是异步的，部分实例上的属性数据需要等待完全初始化完成才能获取的到，所以为了确保它已经完全初始化，需将逻辑代码写在调用`ready()`方法后的`resolved`函数里
 
 提供的API模仿`localforage-like`风格，但增减了一部分，同时也可能更改了部分方法的逻辑，但大致上还是可以参考文档localforage的文档的
 
 支持`localforage`所有全局配置项参数，各配置参数作用也是相同的，但细微之处会有差异，且额外扩展了一些新的配置项，同时支持自定义数据存储单元的配置项
+
+为了保证一个命名空间下所有的的数据时效性检测，会很消耗性能，所以只针对于部分API操作进行了特殊处理，因此这部分API应该尽量少使用，如keys()和iterate()方法
 
 额外扩展了如下配置选项
 - 数据存储有效期控制`maxAge`：默认数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
@@ -32,7 +34,7 @@
  - `Storage`中不存在像`localforage#setDriver`、`localforage#createInstance`、`localforage#defineDriver`等API
  - `Storage#length`作为一个实例属性值，而不是像`localforage#length`作为一个异步方法
  - `Storage#getItem`方法取的值若不存在时，将进入`reject`，抛出`not found`，而不是返回`null`
- - 增加了一个`Storage#updateItem`方法（仅用于更新数据，表示数据进行了更新且更新时间设置为最新）
+ - 移除了`Storage#key`方法
 - 扩展支持的一些新的数据类型存储
 - 默认支持`localforage`支持的如下数据类型存储
     - `null`

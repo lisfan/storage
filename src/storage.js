@@ -736,7 +736,7 @@ class Storage {
    * 迭代所有数据项
    *
    * @since 1.0.0
-   * @param {function} iteratorCallback - 迭代函数
+   * @param {function} iteratorCallback - 迭代函数，迭代函数若返回了具体的值，则提前退出，且返回值将作为resolved的结果值
    * @returns {Promise}
    */
   iterate(iteratorCallback) {

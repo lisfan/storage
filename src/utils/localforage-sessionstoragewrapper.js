@@ -146,7 +146,12 @@
 
       for (var i = 0; i < length; i++) {
         var key = sessionStorage.key(i);
-        console.log('key', key)
+
+        // [fix] 修复读取了非该命名空间的值
+        if (!key.startsWith(keyPrefix)) {
+          continue
+        }
+
         var value = sessionStorage.getItem(key);
 
         // If a result was found, parse it from the serialized
