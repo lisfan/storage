@@ -146,6 +146,7 @@
 
       for (var i = 0; i < length; i++) {
         var key = sessionStorage.key(i);
+        console.log('key', key)
         var value = sessionStorage.getItem(key);
 
         // If a result was found, parse it from the serialized
