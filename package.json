@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/lisfan/storage#readme",
   "dependencies": {
+    "@~lisfan/logger": "^1.2.0-rc.1",
     "@~lisfan/validation": "^1.0.0-rc.9"
   },
   "peerDependencies": {
