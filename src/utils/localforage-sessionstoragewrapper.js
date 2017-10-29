@@ -144,6 +144,7 @@
       var keyPrefixLength = keyPrefix.length;
       var length = sessionStorage.length;
 
+      let counter = 0
       for (var i = 0; i < length; i++) {
         var key = sessionStorage.key(i);
 
@@ -152,6 +153,7 @@
           continue
         }
 
+        counter++
         var value = sessionStorage.getItem(key);
 
         // If a result was found, parse it from the serialized
@@ -162,7 +164,7 @@
           value = serializer.deserialize(value);
         }
 
-        value = iterator(value, key.substring(keyPrefixLength), i + 1);
+        value = iterator(value, key.substring(keyPrefixLength), counter);
 
         if (value !== void(0)) {
           return value;
