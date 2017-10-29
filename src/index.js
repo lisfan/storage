@@ -38,9 +38,22 @@ const _actions = {
    * @returns {LocalForage}
    */
   localforageFactory(options) {
+    // 验证驱动器列表是否至少有一个支持
+    const drivers = options.driver.length > 0
+      ? options.driver
+      : localForageDefaultDriver
+
+    let supportDriver = drivers.some((driver) => {
+      return localforage.supports(driver)
+    })
+
+    if (!supportDriver) {
+      throw new Error('当前浏览器不支持 ${xxx} 离线存储')
+    }
+
     return localforage.createInstance({
       ...options,
-      driver: options.driver && options.driver.length > 0 ? options.driver : localForageDefaultDriver,
+      driver: drivers
     })
   },
   /**
