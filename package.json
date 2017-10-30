@@ -34,14 +34,14 @@
   },
   "homepage": "https://github.com/lisfan/storage#readme",
   "dependencies": {
-    "@~lisfan/logger": "^1.2.0-rc.3",
-    "@~lisfan/validation": "^1.0.0-rc.9"
+    "@~lisfan/logger": "~1.2.0-rc.3",
+    "@~lisfan/validation": "~1.0.0-rc.9"
   },
   "peerDependencies": {
-    "localforage": "^1.4.3"
+    "localforage": "~1.4.3"
   },
   "devDependencies": {
-    "docdash": "^0.4.0",
-    "jsdoc": "^3.5.5"
+    "docdash": "~0.4.0",
+    "jsdoc": "~3.5.5"
   }
 }
