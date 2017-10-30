@@ -464,7 +464,7 @@ class Storage {
     }
 
     this._logger = new Logger({
-      name: 'logger',
+      name: 'storage',
       debug: this.$options.debug
     })
 
@@ -658,7 +658,10 @@ class Storage {
     const maxAge = validation.isNumber(options.maxAge) ? options.maxAge : this.$maxAge
 
     // 若时效性为0，则不存储到store中，直接返回结果
+    // 同时删除原本已存在的数据项
     if (maxAge === 0) {
+      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, `data is: (${data})`)
+      this.removeItem(name)
       return Promise.resolve(data)
     }
 
@@ -674,7 +677,10 @@ class Storage {
 
     // 针对几种数据类型，进行转换
     // 几种localforage不支持的值进行转换
+
     return this._storage.setItem(name, _actions.transformStorageDate(data)).then(async () => {
+      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, `data: (${data})`)
+
       await _actions.computedLength(this)
       // 将当前的原始值返回
       return data
@@ -724,16 +730,16 @@ class Storage {
     }
 
     // maxAge的值大于0
+    // 移除数据
     if (dataItem.isOutdated()) {
-      // 移除数据
       this.removeItem(name)
-
       return Promise.reject('outdate')
     }
 
     // 优化性能
     // 若数据还在存活期，且已绑定在了storeMap上，则忽略从离线存储中取出再解析的过程
     if (!validation.isUndefined(dataItem.$data)) {
+      this._logger.log(`get (${name}) success!`, `data: (${data})`)
       return Promise.resolve(dataItem.$data)
     }
 
@@ -742,6 +748,7 @@ class Storage {
       data = _actions.parseStorageDate(data)
       dataItem.fillData(data)
 
+      this._logger.log(`get (${name}) success!`, `data: (${data})`)
       return data
     })
   }
@@ -758,6 +765,8 @@ class Storage {
     delete this.$storeMap[name]
 
     return this._storage.removeItem(name).then(async () => {
+      this._logger.warn(`remove (${name}) success!`)
+
       await _actions.computedLength(this)
     })
   }
@@ -771,6 +780,8 @@ class Storage {
   clear() {
     this.$storeMap = {}
     this.$length = 0
+
+    this._logger.warn(`clear (${name}) success!`)
 
     return this._storage.clear()
   }
@@ -795,6 +806,8 @@ class Storage {
    * @returns {Promise}
    */
   keys() {
+    this._logger.warn(`this operate is inefficient! avoid use it.`)
+
     return Promise.resolve().then(() => {
       let keys = []
       Object.entries(this.$storeMap).forEach(([name, dataItem]) => {
@@ -817,6 +830,8 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
+    this._logger.warn(`this operate is inefficient! avoid use it.`)
+
     return _actions.filterInvalidData(this).then((storeMap) => {
       let result
 
