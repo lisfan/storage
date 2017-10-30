@@ -739,7 +739,7 @@ class Storage {
     // 优化性能
     // 若数据还在存活期，且已绑定在了storeMap上，则忽略从离线存储中取出再解析的过程
     if (!validation.isUndefined(dataItem.$data)) {
-      this._logger.log(`get (${name}) success!`, 'data is: (', data, ')')
+      this._logger.log(`get (${name}) success!`, 'data is: (', dataItem.$data, ')')
       return Promise.resolve(dataItem.$data)
     }
 
