@@ -1,6 +1,6 @@
 {
   "name": "@~lisfan/storage",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0-rc.6",
   "description": "离线存储器",
   "main": "src/index.js",
   "scripts": {
@@ -34,8 +34,8 @@
   },
   "homepage": "https://github.com/lisfan/storage#readme",
   "dependencies": {
-    "@~lisfan/validation": "^1.0.0-rc.9",
-    "localforage": "^1.5.3"
+    "@~lisfan/logger": "^1.2.0-rc.2",
+    "@~lisfan/validation": "^1.0.0-rc.9"
   },
   "peerDependencies": {
     "localforage": "^1.4.3"

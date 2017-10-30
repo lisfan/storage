@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>storage.js - Documentation</title>
+    <title>index.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">storage.js</h1>
+    <h1 class="page-title">index.js</h1>
     
 
     
@@ -46,9 +46,11 @@
 
 import localforage from 'localforage'
 import validation from '@~lisfan/validation'
+import Logger from '@~lisfan/logger'
 import _ from './utils/utils'
 
 import DATA_TYPES from './enums/data-types'
+import STORAGES from './enums/storages'
 import STORAGE_DRIVERS from './enums/storage-drivers'
 import LOCALFORAGE_DRIVERS from './enums/localforage-drivers'
 import DRIVERS_REFLECTOR from './enums/drivers-reflector'
@@ -76,10 +78,27 @@ const _actions = {
    * @param {object} options - 配置项
    * @returns {LocalForage}
    */
-  localforageFactory(options) {
+  localforageFactory(self, options) {
+    // 验证驱动器列表是否至少有一个支持
+    const drivers = options.driver.length > 0
+      ? options.driver
+      : localForageDefaultDriver
+
+    let supportDriver = drivers.some((driver) => {
+      return localforage.supports(driver)
+    })
+
+    if (!supportDriver) {
+      const unSupportDrivers = drivers.map((driver) => {
+        return STORAGES[driver]
+      })
+
+      self._logger.error(`current browser cant\'t support ${unSupportDrivers.join(',')}  storage, please use another one`)
+    }
+
     return localforage.createInstance({
       ...options,
-      driver: options.driver &amp;&amp; options.driver.length > 0 ? options.driver : localForageDefaultDriver,
+      driver: drivers
     })
   },
   /**
@@ -117,7 +136,7 @@ const _actions = {
   createStoreMapStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
     return definedSessionDriverPromise.then(() => {
-      return this.localforageFactory({
+      return this.localforageFactory(self, {
         name: 'STORE_MAP',
         driver: storageDrivers
       })
@@ -133,7 +152,7 @@ const _actions = {
   createStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
     return definedSessionDriverPromise.then(() => {
-      return this.localforageFactory({
+      return this.localforageFactory(self, {
         ...self.$options,
         driver: storageDrivers
       })
@@ -410,6 +429,7 @@ class Storage {
    * @static
    * @memberOf Storage
    * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
+   * @property {boolean} debug=true - 是否启用调试日志输出模式，默认开启
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -418,6 +438,7 @@ class Storage {
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
+    debug: true,
     maxAge: -1,
     driver: _actions.transformDriver(localForageDefaultDriver),
     name: 'storage',
@@ -433,6 +454,7 @@ class Storage {
    * @static
    * @param {object} options - 配置选项
    * @param {number} [options.maxAge] - 数据可存活时间
+   * @param {boolean} [options.debug] - 调试日志输出模式
    * @param {array|string} [options.driver] - 离线存储器的驱动器
    * @param {string} [options.name] - 离线存储器命名空间
    * @param {string} [options.description]- 离线存储器描述
@@ -465,6 +487,7 @@ class Storage {
    *
    * @param {object} options - 配置参数
    * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+   * @param {boolean} [options.debug] - 调试日志输出模式
    * @param {array|string} [options.driver] -
    *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE
    * @param {string} [options.name] - 离线存储器命名空间
@@ -478,6 +501,11 @@ class Storage {
       ...ctor.options,
       ...options
     }
+
+    this._logger = new Logger({
+      name: 'storage',
+      debug: this.$options.debug
+    })
 
     this._ready = _actions.init(this)
   }
@@ -501,6 +529,14 @@ class Storage {
   _storage = undefined
 
   /**
+   * 日志打印器，方便调试
+   *
+   * @since 1.1.0
+   * @private
+   */
+  _logger = undefined
+
+  /**
    * 实例的完全初始化
    *
    * @since 1.0.0
@@ -518,20 +554,42 @@ class Storage {
   $storeMap = {}
 
   /**
-   * 实例的数据存活时长
-   *
-   * @since 1.0.0
-   * @readonly
-   */
-  $maxAge = undefined
-
-  /**
    * 实例配置项
    *
    * @since 1.0.0
    * @readonly
    */
   $options = undefined
+
+  /**
+   * 获取实例调试模式配置项
+   *
+   * @since 1.1.0
+   * @getter
+   * @returns {boolean}
+   */
+  get $debug() {
+    return this._logger.$debug
+  }
+
+  /**
+   * 设置实例调试模式配置项
+   *
+   * @since 1.1.0
+   * @setter
+   * @param {boolean} value - 启用或禁用
+   */
+  set $debug(value) {
+    this._logger.$debug = value
+  }
+
+  /**
+   * 实例的数据存活时长
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $maxAge = undefined
 
   /**
    * 实例的驱动器类型
@@ -639,7 +697,10 @@ class Storage {
     const maxAge = validation.isNumber(options.maxAge) ? options.maxAge : this.$maxAge
 
     // 若时效性为0，则不存储到store中，直接返回结果
+    // 同时删除原本已存在的数据项
     if (maxAge === 0) {
+      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, `data is: (${data})`)
+      this.removeItem(name)
       return Promise.resolve(data)
     }
 
@@ -655,7 +716,10 @@ class Storage {
 
     // 针对几种数据类型，进行转换
     // 几种localforage不支持的值进行转换
+
     return this._storage.setItem(name, _actions.transformStorageDate(data)).then(async () => {
+      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, `data: (${data})`)
+
       await _actions.computedLength(this)
       // 将当前的原始值返回
       return data
@@ -705,16 +769,16 @@ class Storage {
     }
 
     // maxAge的值大于0
+    // 移除数据
     if (dataItem.isOutdated()) {
-      // 移除数据
       this.removeItem(name)
-
       return Promise.reject('outdate')
     }
 
     // 优化性能
     // 若数据还在存活期，且已绑定在了storeMap上，则忽略从离线存储中取出再解析的过程
     if (!validation.isUndefined(dataItem.$data)) {
+      this._logger.log(`get (${name}) success!`, `data: (${data})`)
       return Promise.resolve(dataItem.$data)
     }
 
@@ -723,6 +787,7 @@ class Storage {
       data = _actions.parseStorageDate(data)
       dataItem.fillData(data)
 
+      this._logger.log(`get (${name}) success!`, `data: (${data})`)
       return data
     })
   }
@@ -739,6 +804,8 @@ class Storage {
     delete this.$storeMap[name]
 
     return this._storage.removeItem(name).then(async () => {
+      this._logger.warn(`remove (${name}) success!`)
+
       await _actions.computedLength(this)
     })
   }
@@ -752,6 +819,8 @@ class Storage {
   clear() {
     this.$storeMap = {}
     this.$length = 0
+
+    this._logger.warn(`clear (${name}) success!`)
 
     return this._storage.clear()
   }
@@ -776,6 +845,8 @@ class Storage {
    * @returns {Promise}
    */
   keys() {
+    this._logger.warn(`this operate is inefficient! avoid use it.`)
+
     return Promise.resolve().then(() => {
       let keys = []
       Object.entries(this.$storeMap).forEach(([name, dataItem]) => {
@@ -798,6 +869,8 @@ class Storage {
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
+    this._logger.warn(`this operate is inefficient! avoid use it.`)
+
     return _actions.filterInvalidData(this).then((storeMap) => {
       let result
 
@@ -828,7 +901,7 @@ export default new Storage()
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Oct 29 2017 19:09:08 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 30 2017 10:54:37 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

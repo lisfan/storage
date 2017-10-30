@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>enums/storage-drivers.js - Documentation</title>
+    <title>enums/storages.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">enums/storage-drivers.js</h1>
+    <h1 class="page-title">enums/storages.js</h1>
     
 
     
@@ -37,15 +37,16 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * storage 驱动器常量枚举
- * @enum
+            <pre class="prettyprint source linenums"><code>import LOCALFORAGE_DRIVERS from './localforage-drivers'
+
+/**
+ * localforage 驱动器与内置离线存储器的映射关系
  */
 export default {
-  SESSIONSTORAGE: Symbol('SESSIONSTORAGE'),
-  LOCALSTORAGE: Symbol('LOCALSTORAGE'),
-  INDEXEDDB: Symbol('INDEXEDDB'),
-  WEBSQL: Symbol('WEBSQL'),
+  [LOCALFORAGE_DRIVERS.SESSIONSTORAGE]: 'sessionStorage',
+  [LOCALFORAGE_DRIVERS.LOCALSTORAGE]: 'localStorage',
+  [LOCALFORAGE_DRIVERS.INDEXEDDB]: 'indexedDB',
+  [LOCALFORAGE_DRIVERS.WEBSQL]: 'webSQL'
 }</code></pre>
         </article>
     </section>
