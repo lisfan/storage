@@ -10,6 +10,9 @@ import Logger from '@~lisfan/logger'
 Logger.configRules({
   'good': true
 })
+
+console.log(Logger.rules)
+
 import localforage from 'localforage'
 import validation from '@~lisfan/validation'
 import _ from './utils/utils'
