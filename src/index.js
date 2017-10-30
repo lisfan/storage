@@ -390,7 +390,7 @@ class Storage {
    * @static
    * @memberOf Storage
    * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
-   * @property {boolean} debug=true - 是否启用调试日志输出模式，默认开启
+   * @property {boolean} debug=false - 是否启用调试日志输出模式，默认关闭
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -399,7 +399,7 @@ class Storage {
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
-    debug: true,
+    debug: false,
     maxAge: -1,
     driver: _actions.transformDriver(localForageDefaultDriver),
     name: 'storage',
