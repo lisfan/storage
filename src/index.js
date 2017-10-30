@@ -5,19 +5,13 @@
  * @licence MIT
  */
 
-import Logger from '@~lisfan/logger'
-
-Logger.configRules({
-  'good': true
-})
-
-console.log(Logger.rules)
-
 import localforage from 'localforage'
 import validation from '@~lisfan/validation'
+import Logger from '@~lisfan/logger'
 import _ from './utils/utils'
 
 import DATA_TYPES from './enums/data-types'
+import STORAGES from './enums/storages'
 import STORAGE_DRIVERS from './enums/storage-drivers'
 import LOCALFORAGE_DRIVERS from './enums/localforage-drivers'
 import DRIVERS_REFLECTOR from './enums/drivers-reflector'
@@ -45,7 +39,7 @@ const _actions = {
    * @param {object} options - 配置项
    * @returns {LocalForage}
    */
-  localforageFactory(options) {
+  localforageFactory(self, options) {
     // 验证驱动器列表是否至少有一个支持
     const drivers = options.driver.length > 0
       ? options.driver
@@ -56,7 +50,11 @@ const _actions = {
     })
 
     if (!supportDriver) {
-      throw new Error('当前浏览器不支持 ${xxx} 离线存储')
+      const unSupportDrivers = drivers.map((driver) => {
+        return STORAGES[driver]
+      })
+
+      self._logger.error(`current browser cant\'t support ${unSupportDrivers.join(',')}  storage, please use another one`)
     }
 
     return localforage.createInstance({
@@ -99,7 +97,7 @@ const _actions = {
   createStoreMapStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
     return definedSessionDriverPromise.then(() => {
-      return this.localforageFactory({
+      return this.localforageFactory(self, {
         name: 'STORE_MAP',
         driver: storageDrivers
       })
@@ -115,7 +113,7 @@ const _actions = {
   createStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
     return definedSessionDriverPromise.then(() => {
-      return this.localforageFactory({
+      return this.localforageFactory(self, {
         ...self.$options,
         driver: storageDrivers
       })
@@ -392,6 +390,7 @@ class Storage {
    * @static
    * @memberOf Storage
    * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
+   * @property {boolean} debug=true - 是否启用调试日志输出模式，默认开启
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -400,6 +399,7 @@ class Storage {
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
+    debug: true,
     maxAge: -1,
     driver: _actions.transformDriver(localForageDefaultDriver),
     name: 'storage',
@@ -415,6 +415,7 @@ class Storage {
    * @static
    * @param {object} options - 配置选项
    * @param {number} [options.maxAge] - 数据可存活时间
+   * @param {boolean} [options.debug] - 调试日志输出模式
    * @param {array|string} [options.driver] - 离线存储器的驱动器
    * @param {string} [options.name] - 离线存储器命名空间
    * @param {string} [options.description]- 离线存储器描述
@@ -447,6 +448,7 @@ class Storage {
    *
    * @param {object} options - 配置参数
    * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+   * @param {boolean} [options.debug] - 调试日志输出模式
    * @param {array|string} [options.driver] -
    *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE
    * @param {string} [options.name] - 离线存储器命名空间
@@ -460,6 +462,11 @@ class Storage {
       ...ctor.options,
       ...options
     }
+
+    this._logger = new Logger({
+      name: 'logger',
+      debug: this.$options.debug
+    })
 
     this._ready = _actions.init(this)
   }
@@ -481,6 +488,14 @@ class Storage {
    * @readonly
    */
   _storage = undefined
+
+  /**
+   * 日志打印器，方便调试
+   *
+   * @since 1.1.0
+   * @private
+   */
+  _logger = undefined
 
   /**
    * 实例的完全初始化
