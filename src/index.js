@@ -660,7 +660,7 @@ class Storage {
     // 若时效性为0，则不存储到store中，直接返回结果
     // 同时删除原本已存在的数据项
     if (maxAge === 0) {
-      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, `data is: (${data})`)
+      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, 'data is: (', data, ')')
       this.removeItem(name)
       return Promise.resolve(data)
     }
@@ -679,7 +679,7 @@ class Storage {
     // 几种localforage不支持的值进行转换
 
     return this._storage.setItem(name, _actions.transformStorageDate(data)).then(async () => {
-      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, `data: (${data})`)
+      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, 'data is: (', data, ')')
 
       await _actions.computedLength(this)
       // 将当前的原始值返回
@@ -739,7 +739,7 @@ class Storage {
     // 优化性能
     // 若数据还在存活期，且已绑定在了storeMap上，则忽略从离线存储中取出再解析的过程
     if (!validation.isUndefined(dataItem.$data)) {
-      this._logger.log(`get (${name}) success!`, `data: (${data})`)
+      this._logger.log(`get (${name}) success!`, 'data is: (', data, ')')
       return Promise.resolve(dataItem.$data)
     }
 
@@ -748,7 +748,7 @@ class Storage {
       data = _actions.parseStorageDate(data)
       dataItem.fillData(data)
 
-      this._logger.log(`get (${name}) success!`, `data: (${data})`)
+      this._logger.log(`get (${name}) success!`, 'data is: (', data, ')')
       return data
     })
   }
