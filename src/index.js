@@ -515,20 +515,42 @@ class Storage {
   $storeMap = {}
 
   /**
-   * 实例的数据存活时长
-   *
-   * @since 1.0.0
-   * @readonly
-   */
-  $maxAge = undefined
-
-  /**
    * 实例配置项
    *
    * @since 1.0.0
    * @readonly
    */
   $options = undefined
+
+  /**
+   * 获取实例调试模式配置项
+   *
+   * @since 1.1.0
+   * @getter
+   * @returns {boolean}
+   */
+  get $debug() {
+    return this._logger.$debug
+  }
+
+  /**
+   * 设置实例调试模式配置项
+   *
+   * @since 1.1.0
+   * @setter
+   * @param {boolean} value - 启用或禁用
+   */
+  set $debug(value) {
+    this._logger.$debug = value
+  }
+
+  /**
+   * 实例的数据存活时长
+   *
+   * @since 1.0.0
+   * @readonly
+   */
+  $maxAge = undefined
 
   /**
    * 实例的驱动器类型

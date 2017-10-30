@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>enums/drivers-reflector.js - Documentation</title>
+    <title>enums/storages.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">enums/drivers-reflector.js</h1>
+    <h1 class="page-title">enums/storages.js</h1>
     
 
     
@@ -37,21 +37,16 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import STORAGE_DRIVERS from './storage-drivers'
-import LOCALFORAGE_DRIVERS from './localforage-drivers'
+            <pre class="prettyprint source linenums"><code>import LOCALFORAGE_DRIVERS from './localforage-drivers'
 
 /**
- * storage与localforage 驱动器常量的相互映射关系
+ * localforage 驱动器与内置离线存储器的映射关系
  */
 export default {
-  [STORAGE_DRIVERS.SESSIONSTORAGE]: LOCALFORAGE_DRIVERS.SESSIONSTORAGE,
-  [STORAGE_DRIVERS.LOCALSTORAGE]: LOCALFORAGE_DRIVERS.LOCALSTORAGE,
-  [STORAGE_DRIVERS.INDEXEDDB]: LOCALFORAGE_DRIVERS.INDEXEDDB,
-  [STORAGE_DRIVERS.WEBSQL]: LOCALFORAGE_DRIVERS.WEBSQL,
-  [LOCALFORAGE_DRIVERS.SESSIONSTORAGE]: STORAGE_DRIVERS.SESSIONSTORAGE,
-  [LOCALFORAGE_DRIVERS.LOCALSTORAGE]: STORAGE_DRIVERS.LOCALSTORAGE,
-  [LOCALFORAGE_DRIVERS.INDEXEDDB]: STORAGE_DRIVERS.INDEXEDDB,
-  [LOCALFORAGE_DRIVERS.WEBSQL]: STORAGE_DRIVERS.WEBSQL,
+  [LOCALFORAGE_DRIVERS.SESSIONSTORAGE]: 'sessionStorage',
+  [LOCALFORAGE_DRIVERS.LOCALSTORAGE]: 'localStorage',
+  [LOCALFORAGE_DRIVERS.INDEXEDDB]: 'indexedDB',
+  [LOCALFORAGE_DRIVERS.WEBSQL]: 'webSQL'
 }</code></pre>
         </article>
     </section>
