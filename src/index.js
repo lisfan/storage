@@ -390,7 +390,7 @@ class Storage {
    * @static
    * @memberOf Storage
    * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
-   * @property {boolean} debug=true - 是否启用调试日志输出模式，默认开启
+   * @property {boolean} debug=false - 是否启用调试日志输出模式，默认关闭
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -399,7 +399,7 @@ class Storage {
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
-    debug: true,
+    debug: false,
     maxAge: -1,
     driver: _actions.transformDriver(localForageDefaultDriver),
     name: 'storage',
@@ -660,7 +660,7 @@ class Storage {
     // 若时效性为0，则不存储到store中，直接返回结果
     // 同时删除原本已存在的数据项
     if (maxAge === 0) {
-      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, `data is: (${data})`)
+      this._logger.warn(`maxAge is (0), (${name}) no need to set!`, 'data is: (', data, ')')
       this.removeItem(name)
       return Promise.resolve(data)
     }
@@ -679,7 +679,7 @@ class Storage {
     // 几种localforage不支持的值进行转换
 
     return this._storage.setItem(name, _actions.transformStorageDate(data)).then(async () => {
-      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, `data: (${data})`)
+      this._logger.log(`set (${name}) success! data can live (${maxAge / 1000}s)`, 'data is: (', data, ')')
 
       await _actions.computedLength(this)
       // 将当前的原始值返回
@@ -739,7 +739,7 @@ class Storage {
     // 优化性能
     // 若数据还在存活期，且已绑定在了storeMap上，则忽略从离线存储中取出再解析的过程
     if (!validation.isUndefined(dataItem.$data)) {
-      this._logger.log(`get (${name}) success!`, `data: (${data})`)
+      this._logger.log(`get (${name}) success!`, 'data is: (', dataItem.$data, ')')
       return Promise.resolve(dataItem.$data)
     }
 
@@ -748,7 +748,7 @@ class Storage {
       data = _actions.parseStorageDate(data)
       dataItem.fillData(data)
 
-      this._logger.log(`get (${name}) success!`, `data: (${data})`)
+      this._logger.log(`get (${name}) success!`, 'data is: (', data, ')')
       return data
     })
   }
