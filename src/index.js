@@ -37,7 +37,7 @@ const _actions = {
    *
    * @ignore
    * @param {object} options - 配置项
-   * @returns {LocalForage}
+   * @return {LocalForage}
    */
   localforageFactory(self, options) {
     // 验证驱动器列表是否至少有一个支持
@@ -92,7 +92,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
-   * @returns {Promise}
+   * @return {Promise}
    */
   createStoreMapStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
@@ -108,7 +108,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
-   * @returns {Promise}
+   * @return {Promise}
    */
   createStorage(self, storageDrivers) {
     // 异步加载，确保自定义driver已经加载完毕
@@ -124,7 +124,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
-   * @returns {Promise}
+   * @return {Promise}
    */
   async readyInit(self) {
     await self._storage.ready().then(async () => {
@@ -156,7 +156,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
-   * @returns {number}
+   * @return {number}
    */
   computedLength(self) {
     return self._storage.length().then((length) => {
@@ -170,7 +170,7 @@ const _actions = {
    * @since 1.0.0
    * @async
    * @param {Storage} self - Stoarge实例
-   * @returns {Promise}
+   * @return {Promise}
    */
   async parseStoreMap(self) {
     return self._storeMapStorage.ready(() => {
@@ -191,7 +191,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {Storage} self - Stoarge实例
-   * @returns {DataItem[]}
+   * @return {DataItem[]}
    */
   filterStoreMap(self) {
     let storeMap = {}
@@ -233,7 +233,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {string[]} dirver - storage驱动器列表或localforage驱动器列表
-   * @returns {symbol[]}
+   * @return {symbol[]}
    */
   transformDriver(drivers) {
     const transformedDriver = drivers.map((driver) => {
@@ -249,7 +249,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {*} data - 任意数据
-   * @returns {*}
+   * @return {*}
    */
   transformStorageDate(data) {
     switch (validation.typeof(data)) {
@@ -289,7 +289,7 @@ const _actions = {
    *
    * @since 1.0.0
    * @param {*} data - 任意数据
-   * @returns {*}
+   * @return {*}
    */
   parseStorageDate(data) {
     let type
@@ -437,7 +437,7 @@ class Storage {
    *
    * @since 1.0.0
    * @param {symbol} driver - 驱动器常量
-   * @returns {Promise}
+   * @return {Promise}
    */
   static supports(driver) {
     return localforage.supports(DRIVERS_REFLECTOR[driver])
@@ -527,7 +527,7 @@ class Storage {
    *
    * @since 1.1.0
    * @getter
-   * @returns {boolean}
+   * @return {boolean}
    */
   get $debug() {
     return this._logger.$debug
@@ -606,7 +606,7 @@ class Storage {
    * @since 1.0.0
    * @getter
    * @readonly
-   * @returns {number}
+   * @return {number}
    */
   get length() {
     return this.$length || 0
@@ -626,7 +626,7 @@ class Storage {
    * 确保实例已初始化完成
    *
    * @since 1.0.0
-   * @returns {Promise}
+   * @return {Promise}
    */
   ready() {
     return this._ready
@@ -637,7 +637,7 @@ class Storage {
    * [注] 确保实例已初始化完成，否则取不到值
    *
    * @since 1.0.0
-   * @returns {Promise}
+   * @return {Promise}
    */
   driver() {
     return this.$driver
@@ -652,7 +652,7 @@ class Storage {
    * @param {object} options - 自定义存储单元实例的配置选项
    * @param {number} [options.maxAge] - 数据单元项可存活时间（毫秒单位）
    * @param {string} [options.description]- 数据单元项描述
-   * @returns {Promise}
+   * @return {Promise}
    */
   setItem(name, data, options = {}) {
     const maxAge = validation.isNumber(options.maxAge) ? options.maxAge : this.$maxAge
@@ -695,7 +695,7 @@ class Storage {
   //  * @since 1.0.0
   //  * @param {string} name - 数据项名称
   //  * @param {*} data - 任意数据
-  //  * @returns {Promise}
+  //  * @return {Promise}
   //  */
   // updateItem(name, data) {
   //   // 判断是否已存在该项
@@ -719,7 +719,7 @@ class Storage {
    *
    * @since 1.0.0
    * @param {string} name - 数据项名称
-   * @returns {Promise}
+   * @return {Promise}
    */
   getItem(name) {
     const dataItem = this.$storeMap[name]
@@ -758,7 +758,7 @@ class Storage {
    *
    * @since 1.0.0
    * @param {string} name - 数据项名称
-   * @returns {Promise}
+   * @return {Promise}
    */
   removeItem(name) {
     this.$storeMap[name] = null
@@ -775,7 +775,7 @@ class Storage {
    * 清空所有数据项
    *
    * @since 1.0.0
-   * @returns {Promise}
+   * @return {Promise}
    */
   clear() {
     this.$storeMap = {}
@@ -793,7 +793,7 @@ class Storage {
   //  * @deprecated 1.1.0
   //  * @since 1.0.0
   //  * @param {number} keyIndex - 序号
-  //  * @returns {Promise}
+  //  * @return {Promise}
   //  */
   // key(keyIndex) {
   //   return this._storage.key(keyIndex)
@@ -803,7 +803,7 @@ class Storage {
    * 获取所有时效性活的数据的键列表
    *
    * @since 1.0.0
-   * @returns {Promise}
+   * @return {Promise}
    */
   keys() {
     this._logger.warn(`this operate is inefficient! avoid use it.`)
@@ -827,7 +827,7 @@ class Storage {
    *
    * @since 1.0.0
    * @param {function} iteratorCallback - 迭代函数，迭代函数若返回了具体的值，则提前退出，且返回值将作为resolved的结果值
-   * @returns {Promise}
+   * @return {Promise}
    */
   iterate(iteratorCallback) {
     this._logger.warn(`this operate is inefficient! avoid use it.`)

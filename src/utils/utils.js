@@ -21,7 +21,7 @@ export default {
    *
    * @since 1.0.0
    * @param {*} value - 任意值
-   * @returns {array}
+   * @return {array}
    */
   castArray(value) {
     return validation.isArray(value) ? value : [value]
@@ -33,7 +33,7 @@ export default {
    * @since 1.0.0
    * @param {object} obj - 对象
    * @param {function} iterate - 迭代函数
-   * @returns {object}
+   * @return {object}
    */
   mapValues(obj, iterate) {
     let newObj = {}
