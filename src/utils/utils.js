@@ -9,7 +9,7 @@ export default {
    *
    * @since 1.0.0
    * @param {array} array - 数组
-   * @return {array}
+   * @returns {array}
    */
   compact(array) {
     return array.filter((item) => {
@@ -21,7 +21,7 @@ export default {
    *
    * @since 1.0.0
    * @param {*} value - 任意值
-   * @return {array}
+   * @returns {array}
    */
   castArray(value) {
     return validation.isArray(value) ? value : [value]
@@ -33,7 +33,7 @@ export default {
    * @since 1.0.0
    * @param {object} obj - 对象
    * @param {function} iterate - 迭代函数
-   * @return {object}
+   * @returns {object}
    */
   mapValues(obj, iterate) {
     let newObj = {}

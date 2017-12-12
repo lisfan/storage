@@ -73,7 +73,7 @@ class DataItem {
    *
    * @since 1.0.0
    * @readonly
-   * @return {number}
+   * @returns {number}
    */
   $timeStamp = undefined
 
@@ -94,7 +94,7 @@ class DataItem {
    * @since 1.0.0
    * @getter
    * @readonly
-   * @return {string}
+   * @returns {string}
    */
   get $description() {
     return this.$options.description
@@ -116,7 +116,7 @@ class DataItem {
    *
    * @since 1.0.0
    * @readonly
-   * @return {*}
+   * @returns {*}
    */
   $data = undefined
   // get $data() {
@@ -139,7 +139,7 @@ class DataItem {
    * @since 1.0.0
    * @getter
    * @readonly
-   * @return {number}
+   * @returns {number}
    */
   get $maxAge() {
     return this.$options.maxAge
@@ -161,7 +161,7 @@ class DataItem {
    *
    * @since 1.0.0
    * @param {*} data - 任意数据类型
-   * @return {DataItem}
+   * @returns {DataItem}
    */
   fillData(data) {
     this.$data = data
@@ -173,7 +173,7 @@ class DataItem {
    *
    * @since 1.0.0
    * @param {*} data - 任意数据类型
-   * @return {DataItem}
+   * @returns {DataItem}
    */
   updateData(data) {
     this.$timeStamp = Date.now()
@@ -184,7 +184,7 @@ class DataItem {
    * 验证当前数据项是否已过期
    *
    * @since 1.1.0
-   * @return {boolean}
+   * @returns {boolean}
    */
   isOutdated() {
     return this.$maxAge > 0 && (this.$timeStamp + this.$maxAge) < Date.now()
