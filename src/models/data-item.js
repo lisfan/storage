@@ -13,7 +13,7 @@ class DataItem {
    * @readonly
    * @memberOf DataItem
    *
-   * @type
+   * @type {object}
    * @property {string} description='' - 数据单元项描述
    * @property {number} maxAge=-1 - 数据单元项的存活时间
    */
