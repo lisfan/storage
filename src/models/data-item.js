@@ -10,8 +10,10 @@ class DataItem {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf DataItem
    *
+   * @type
    * @property {string} description='' - 数据单元项描述
    * @property {number} maxAge=-1 - 数据单元项的存活时间
    */
@@ -70,7 +72,7 @@ class DataItem {
    *
    * @readonly
    *
-   * @property {object}
+   * @type {object}
    */
   $options = undefined
 
@@ -83,7 +85,7 @@ class DataItem {
    *
    * @readonly
    *
-   * @returns {number}
+   * @type {number}
    */
   $timeStamp = undefined
 
@@ -93,8 +95,9 @@ class DataItem {
    * @since 1.0.0
    *
    * @getter
+   * @readonly
    *
-   * @returns {string}
+   * @type {string}
    */
   get $description() {
     return this.$options.description
@@ -107,7 +110,7 @@ class DataItem {
    *
    * @readonly
    *
-   * @returns {*}
+   * @type {*}
    */
   $data = undefined
 
@@ -117,8 +120,9 @@ class DataItem {
    * @since 1.0.0
    *
    * @getter
+   * @readonly
    *
-   * @returns {number}
+   * @type {number}
    */
   get $maxAge() {
     return this.$options.maxAge

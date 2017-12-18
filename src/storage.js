@@ -43,6 +43,7 @@ const _actions = {
    *
    * @param {Storage} self - 实例自身
    * @param {object} options - 配置项
+   *
    * @returns {LocalForage}
    */
   localforageFactory(self, options) {
@@ -407,7 +408,10 @@ class Storage {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static SESSIONSTORAGE = STORAGE_DRIVERS.SESSIONSTORAGE
   /**
@@ -416,7 +420,10 @@ class Storage {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static INDEXEDDB = STORAGE_DRIVERS.INDEXEDDB
   /**
@@ -425,7 +432,10 @@ class Storage {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static WEBSQL = STORAGE_DRIVERS.WEBSQL
   /**
@@ -434,7 +444,10 @@ class Storage {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static LOCALSTORAGE = STORAGE_DRIVERS.LOCALSTORAGE
 
@@ -446,6 +459,7 @@ class Storage {
    * @static
    * @memberOf Storage
    *
+   * @type {object}
    * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
    * @property {boolean} debug=false - 是否启用调试日志输出模式，默认关闭
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
@@ -572,6 +586,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {object}
    */
   $storeMap = {}
 
@@ -581,6 +597,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {object}
    */
   $options = undefined
 
@@ -590,6 +608,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {number}
    */
   $maxAge = undefined
 
@@ -599,6 +619,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {string}
    */
   $driver = undefined
 
@@ -608,6 +630,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {string}
    */
   $name = undefined
 
@@ -617,6 +641,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {string}
    */
   $description = undefined
 
@@ -626,6 +652,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {number}
    */
   $size = undefined
 
@@ -635,6 +663,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {string}
    */
   $storeName = undefined
 
@@ -644,6 +674,8 @@ class Storage {
    * @since 1.0.0
    *
    * @readonly
+   *
+   * @type {number}
    */
   $length = 0
 
@@ -653,8 +685,9 @@ class Storage {
    * @since 1.0.0
    *
    * @getter
+   * @readonly
    *
-   * @returns {number}
+   * @type {number}
    */
   get length() {
     return this.$length || 0
@@ -664,6 +697,8 @@ class Storage {
    * 确保实例已初始化完成
    *
    * @since 1.0.0
+   *
+   * @async
    *
    * @returns {Promise}
    */
@@ -676,6 +711,8 @@ class Storage {
    * [注] 确保实例已初始化完成，否则取不到值
    *
    * @since 1.0.0
+   *
+   * @async
    *
    * @returns {Promise}
    */

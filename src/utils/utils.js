@@ -1,5 +1,6 @@
 /**
  * 模拟 lodash API
+ * @ignore
  */
 import validation from '@~lisfan/validation'
 
