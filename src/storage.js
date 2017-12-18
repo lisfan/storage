@@ -945,7 +945,4 @@ class Storage {
   }
 }
 
-export { Storage }
-
-// 导出默认Storage实例
-export default new Storage()
+export { Storage, new Storage as default }
