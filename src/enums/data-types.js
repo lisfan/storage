@@ -7,6 +7,8 @@
  * - function
  * - Infinity
  * - NaN
+ *
+ * @enum {string}
  */
 export default {
   UNDEFINED: '[storage undefined]#',

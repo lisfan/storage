@@ -1,6 +1,7 @@
 /**
  * storage 驱动器常量枚举
- * @enum
+ *
+ * @enum {string}
  */
 export default {
   SESSIONSTORAGE: Symbol('SESSIONSTORAGE'),
