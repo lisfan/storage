@@ -457,11 +457,12 @@ class Storage {
    * @since 1.0.0
    *
    * @static
+   * @readonly
    * @memberOf Storage
    *
    * @type {object}
-   * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
-   * @property {boolean} debug=false - 是否启用调试日志输出模式，默认关闭
+   * @property {number} maxAge=-1 - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+   * @property {boolean} debug=false - 调试日志输出模式
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -483,15 +484,12 @@ class Storage {
    * 更新默认配置选项
    *
    * @since 1.0.0
-   **
-   * @param {object} options - 配置选项
-   * @param {number} [options.maxAge] - 数据可存活时间
-   * @param {boolean} [options.debug] - 调试日志输出模式
-   * @param {array|string} [options.driver] - 离线存储器的驱动器
-   * @param {string} [options.name] - 离线存储器命名空间
-   * @param {string} [options.description]- 离线存储器描述
-   * @param {number} [options.size]- 离线存储器的大小
-   * @param {string} [options.storeName] - 离线存储器的数据库名称
+   *
+   * @see Storage.options
+   *
+   * @param {object} options - 配置选项见{@link Storage.options}
+   *
+   * @returns {Storage}
    */
   static config(options) {
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
@@ -508,6 +506,8 @@ class Storage {
    *
    * @since 1.0.0
    *
+   * @async
+   *
    * @param {Symbol} driver - 驱动器常量
    *
    * @returns {Promise}
@@ -519,15 +519,9 @@ class Storage {
   /**
    * 构造函数
    *
-   * @param {object} options - 配置参数
-   * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
-   * @param {boolean} [options.debug] - 调试日志输出模式
-   * @param {array|string} [options.driver] -
-   *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE
-   * @param {string} [options.name] - 离线存储器命名空间
-   * @param {string} [options.description]- 离线存储器描述
-   * @param {number} [options.size]- 离线存储器的大小
-   * @param {string} [options.storeName] - 离线存储器的数据库名称
+   * @see Storage.options
+   *
+   * @param {object} options - 配置选项见{@link Storage.options}
    */
   constructor(options) {
     this.$options = {
