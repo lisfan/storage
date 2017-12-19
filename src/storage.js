@@ -494,13 +494,13 @@ class Storage {
    * @param {string} [options.storeName] - 离线存储器的数据库名称
    */
   static config(options) {
-    const ctor = this
-
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    ctor.options = {
-      ...ctor.options,
+    Storage.options = {
+      ...Storage.options,
       options
     }
+
+    return this
   }
 
   /**
@@ -530,9 +530,8 @@ class Storage {
    * @param {string} [options.storeName] - 离线存储器的数据库名称
    */
   constructor(options) {
-    const ctor = this.constructor
     this.$options = {
-      ...ctor.options,
+      ...Storage.options,
       ...options
     }
 
