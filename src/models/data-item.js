@@ -34,13 +34,13 @@ class DataItem {
    * @param {number} [options.maxAge] - 数据单元项的存活时间
    */
   static config(options) {
-    const ctor = this
-
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    ctor.options = {
-      ...ctor.options,
+    DataItem.options = {
+      ...DataItem.options,
       options
     }
+
+    return this
   }
 
   /**
@@ -53,10 +53,8 @@ class DataItem {
    * @param {string} [options.description] - 数据单元项描述
    */
   constructor(options) {
-    const ctor = this.constructor
-
     this.$options = {
-      ...ctor.options,
+      ...DataItem.options,
       timeStamp: Date.now(),
       ...options
     }
