@@ -536,7 +536,7 @@ class Storage {
     }
 
     this._logger = new Logger({
-      name: 'storage',
+      name: this.$options.name,
       debug: this.$options.debug
     })
 
