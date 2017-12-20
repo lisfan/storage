@@ -15,7 +15,7 @@ class DataItem {
    *
    * @type {object}
    * @property {string} description='' - 数据单元项描述
-   * @property {number} maxAge=-1 - 数据单元项的存活时间
+   * @property {number} maxAge=-1 - 数据单元项的存活时间，单位毫秒，可选值：小于0的值=永久存活（默认）、0=不缓存、大于0的值=可存活时间
    */
   static options = {
     description: '', // 该数据单元项的描述
@@ -29,9 +29,11 @@ class DataItem {
    *
    * @static
    *
-   * @param {object} options - 配置参数
-   * @param {string} [options.description] - 数据单元项描述
-   * @param {number} [options.maxAge] - 数据单元项的存活时间
+   * @see DataItem.options
+   *
+   * @param {object} options - 其他配置选项见{@link DataItem.options}
+   *
+   * @returns {DataItem}
    */
   static config(options) {
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
@@ -46,11 +48,11 @@ class DataItem {
   /**
    * 构造函数
    *
-   * @param {object} options - 配置参数
+   * @see DataItem.options
+   *
+   * @param {object} options - 其他配置选项见{@link DataItem.options}
    * @param {*} [options.data] - 数据单元关联的值，若未指定值，则值为undefined
-   * @param {*} [options.timeStamp=Date.now()] - 数据初始存储时间戳，若未指定，默认使用当前时间
-   * @param {number} [options.maxAge] - 数据单元项的存活时间，单位毫秒，可选值：小于0的值=永久存活（默认）、0=不缓存、大于0的值=可存活时间
-   * @param {string} [options.description] - 数据单元项描述
+   * @param {number} [options.timeStamp=Date.now()] - 数据初始存储时间戳，若未指定，默认使用当前时间
    */
   constructor(options) {
     this.$options = {
