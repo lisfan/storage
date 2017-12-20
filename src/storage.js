@@ -1,8 +1,5 @@
 /**
  * @file 离线存储控制器
- * @author lisfan <goolisfan@gmail.com>
- * @version 1.0.0
- * @licence MIT
  */
 
 import localforage from 'localforage'
@@ -11,7 +8,7 @@ import Logger from '@~lisfan/logger'
 import _ from './utils/utils'
 
 import sessionStorageWrapper from './utils/localforage-sessionstoragewrapper'
-import DataItem from './models/data-item'
+import DataItem from './data-item'
 
 import DATA_TYPES from './enums/data-types'
 import STORAGES from './enums/storages'
