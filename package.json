@@ -2,13 +2,15 @@
   "name": "@~lisfan/storage",
   "version": "1.0.0",
   "description": "离线存储器",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "pub-pre": "git pull && npm version prerelease",
     "pub-n": "npm run pub-pre && npm publish --tag nightly && npm run pub-post",
     "pub-a": "npm run pub-pre && npm publish --tag alpha && npm run pub-post",
     "pub-b": "npm run pub-pre && npm publish --tag beta && npm run pub-post",
     "pub-rc": "npm run pub-pre && npm publish --tag rc && npm run pub-post",
+    "pub-s": "npm run pub-pre && npm publish --tag stable && npm run pub-post",
+    "pub-x": "npm run pub-pre && npm publish --tag next && npm run pub-post",
     "pub-l": "npm run pub-pre && npm publish && npm run pub-post",
     "pub": "git pull && npm publish && npm run pub-post",
     "pub-post": "git commit -am \"chore: publish@$npm_package_version\" && git push",
@@ -34,7 +36,7 @@
   },
   "homepage": "https://github.com/lisfan/storage#readme",
   "dependencies": {
-    "@~lisfan/logger": "^1.0.0",
+    "@~lisfan/logger": "~1.3.0",
     "@~lisfan/validation": "^1.0.0"
   },
   "peerDependencies": {

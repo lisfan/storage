@@ -1,46 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>index.js - Documentation</title>
-
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
-</head>
-<body>
-
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
-
-<label for="nav-trigger" class="overlay"></label>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Storage.html">Storage</a><ul class='methods'><li data-type='method'><a href="Storage.html#.config">config</a></li><li data-type='method'><a href="Storage.html#.supports">supports</a></li><li data-type='method'><a href="Storage.html#ready">ready</a></li><li data-type='method'><a href="Storage.html#driver">driver</a></li><li data-type='method'><a href="Storage.html#setItem">setItem</a></li><li data-type='method'><a href="Storage.html#getItem">getItem</a></li><li data-type='method'><a href="Storage.html#removeItem">removeItem</a></li><li data-type='method'><a href="Storage.html#clear">clear</a></li><li data-type='method'><a href="Storage.html#keys">keys</a></li><li data-type='method'><a href="Storage.html#iterate">iterate</a></li></ul></li></ul>
-</nav>
-
-<div id="main">
-    
-    <h1 class="page-title">index.js</h1>
-    
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
+/**
  * @file 离线存储控制器
- * @author lisfan &lt;goolisfan@gmail.com>
- * @version 1.1.0
+ * @author lisfan <goolisfan@gmail.com>
+ * @version 1.0.0
  * @licence MIT
  */
 
@@ -49,14 +10,14 @@ import validation from '@~lisfan/validation'
 import Logger from '@~lisfan/logger'
 import _ from './utils/utils'
 
+import sessionStorageWrapper from './utils/localforage-sessionstoragewrapper'
+import DataItem from './models/data-item'
+
 import DATA_TYPES from './enums/data-types'
 import STORAGES from './enums/storages'
 import STORAGE_DRIVERS from './enums/storage-drivers'
 import LOCALFORAGE_DRIVERS from './enums/localforage-drivers'
 import DRIVERS_REFLECTOR from './enums/drivers-reflector'
-
-import sessionStorageWrapper from './utils/localforage-sessionstoragewrapper'
-import DataItem from './models/data-item'
 
 // 增加新的sessionStorage驱动器
 const definedSessionDriverPromise = localforage.defineDriver(sessionStorageWrapper)
@@ -67,15 +28,22 @@ const localForageDefaultConfig = localforage._defaultConfig
 /* eslint-disable max-len */
 // localForage默认驱动器列表，同时优先选择sessionStorage存储
 const localForageDefaultDriver = [LOCALFORAGE_DRIVERS.SESSIONSTORAGE].concat(localForageDefaultConfig._driver)
-
 /* eslint-enable max-len */
 
+/**
+ * 私有方法
+ *
+ * @private
+ */
 const _actions = {
   /**
    * localforage实例工厂
    *
-   * @ignore
+   * @since 1.0.0
+   *
+   * @param {Storage} self - 实例自身
    * @param {object} options - 配置项
+   *
    * @returns {LocalForage}
    */
   localforageFactory(self, options) {
@@ -107,9 +75,12 @@ const _actions = {
    * 2. 填充localforage实例初始化完成后的storage实例数据
    *
    * @since 1.0.0
+   *
    * @async
-   * @param {Storage} self - Stoarge实例
-   * @return {Promise}
+   *
+   * @param {Storage} self - 实例自身
+   *
+   * @returns {Promise}
    */
   async init(self) {
     /* eslint-disable max-len */
@@ -130,7 +101,12 @@ const _actions = {
    * - 比如，如果直接放置在自身属性上，会占用一个存储项，且部分api调用时，还需要排除该项
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
+   *
+   * @async
+   *
+   * @param {Storage} self - 实例自身
+   * @param {string[]} storageDrivers - 存储驱动器列表
+   *
    * @returns {Promise}
    */
   createStoreMapStorage(self, storageDrivers) {
@@ -146,7 +122,12 @@ const _actions = {
    * 创建存储数据的localforage实例
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
+   *
+   * @async
+   *
+   * @param {Storage} self - 实例自身
+   * @param {string[]} storageDrivers - 存储驱动器列表
+   *
    * @returns {Promise}
    */
   createStorage(self, storageDrivers) {
@@ -162,7 +143,11 @@ const _actions = {
    * localforage实例完全初始化后，对storage实例进行完全初始化处理
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
+   *
+   * @async
+   *
+   * @param {Storage} self - 实例自身
+   *
    * @returns {Promise}
    */
   async readyInit(self) {
@@ -194,8 +179,12 @@ const _actions = {
    * 因为会发生setItem覆盖数据值的情况，手动计算不会准确
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
-   * @returns {number}
+   *
+   * @async
+   *
+   * @param {Storage} self - 实例自身
+   *
+   * @returns {Promise}
    */
   computedLength(self) {
     return self._storage.length().then((length) => {
@@ -207,15 +196,18 @@ const _actions = {
    * 解析默认存在的storeMap，且存在数据项长度大于0
    *
    * @since 1.0.0
+   *
    * @async
-   * @param {Storage} self - Stoarge实例
+   *
+   * @param {Storage} self - 实例自身
+   *
    * @returns {Promise}
    */
   async parseStoreMap(self) {
     return self._storeMapStorage.ready(() => {
       return self._storeMapStorage.getItem(self.$name).then((data) => {
         // 若以存在，且数据项长度大于0
-        if (data &amp;&amp; self.length > 0) {
+        if (data && self.length > 0) {
           self.$storeMap = _.mapValues(data, (options) => {
             return new DataItem(options)
           })
@@ -229,7 +221,9 @@ const _actions = {
    * 过滤梳理storeMap的数据单元实例列表
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
+   *
+   * @param {Storage} self - 实例自身
+   *
    * @returns {DataItem[]}
    */
   filterStoreMap(self) {
@@ -254,7 +248,8 @@ const _actions = {
    * [新]优化性能，只有在离开页面的时候才进行一次存储
    *
    * @since 1.0.0
-   * @param {Storage} self - Stoarge实例
+   *
+   * @param {Storage} self - 实例自身
    */
   bindRecordStoreMapEvent(self) {
     window.addEventListener('beforeunload', () => {
@@ -271,8 +266,10 @@ const _actions = {
    * 转换storage驱动器和localforage驱动器的映射关系
    *
    * @since 1.0.0
-   * @param {string[]} dirver - storage驱动器列表或localforage驱动器列表
-   * @returns {symbol[]}
+   *
+   * @param {string[]} drivers - storage驱动器列表或localforage驱动器列表
+   *
+   * @returns {string[]}
    */
   transformDriver(drivers) {
     const transformedDriver = drivers.map((driver) => {
@@ -287,7 +284,9 @@ const _actions = {
    * 转换成可离线存储的格式
    *
    * @since 1.0.0
+   *
    * @param {*} data - 任意数据
+   *
    * @returns {*}
    */
   transformStorageDate(data) {
@@ -304,10 +303,10 @@ const _actions = {
         if (validation.isNaN(data)) {
           // 处理是NaN的情况
           return DATA_TYPES.NAN + 'NaN'
-        } else if (!validation.isFinite(data) &amp;&amp; data > 0) {
+        } else if (!validation.isFinite(data) && data > 0) {
           // 处理是NaN的情况
           return DATA_TYPES.INFINITY + 'Infinity'
-        } else if (!validation.isFinite(data) &amp;&amp; data &lt; 0) {
+        } else if (!validation.isFinite(data) && data < 0) {
           // 处理是NaN的情况
           return DATA_TYPES.INFINITY + '-Infinity'
         }
@@ -320,6 +319,7 @@ const _actions = {
   },
   /**
    * 解析数据时的正则匹配模式
+   *
    * @since 1.0.0
    */
   PARSE_DATA_REGEXP: /^\[storage ([^\]#]+)\]#([\s\S]+)$/,
@@ -327,14 +327,16 @@ const _actions = {
    * 解析要存储的值
    *
    * @since 1.0.0
+   *
    * @param {*} data - 任意数据
+   *
    * @returns {*}
    */
   parseStorageDate(data) {
     let type
     let value
 
-    if (validation.isString(data) &amp;&amp; data.startsWith('[storage')) {
+    if (validation.isString(data) && data.startsWith('[storage')) {
       const matched = data.match(this.PARSE_DATA_REGEXP)
 
       if (matched) {
@@ -364,12 +366,18 @@ const _actions = {
   /* eslint-enable no-eval*/
   /**
    * 过滤时效还未超时的数据
+   *
+   * @since 1.0.0
+   *
+   * @param {Storage} self - 实例自身
+   *
+   * @returns {Promise}
    */
   filterInvalidData(self) {
     let storeMap = {}
 
     // 导师步解析数据，过滤已过期数据
-    return self._storage.iterate((data, name, index) => {
+    return self._storage.iterate((data, name) => {
       const dataItem = self.$storeMap[name]
       if (dataItem.isOutdated()) {
         self.removeItem(name)
@@ -390,6 +398,7 @@ const _actions = {
  * - storage实例会单独建立一个映射表来管理数据单元与数据的映射关系
  *
  * @classdesc 离线存储类
+ *
  * @class
  */
 class Storage {
@@ -397,28 +406,48 @@ class Storage {
    * sessionStorage驱动器
    *
    * @since 1.0.0
+   *
+   * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static SESSIONSTORAGE = STORAGE_DRIVERS.SESSIONSTORAGE
   /**
    * indexedDB驱动器
    *
    * @since 1.0.0
+   *
+   * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static INDEXEDDB = STORAGE_DRIVERS.INDEXEDDB
   /**
    * webSQL驱动器
    *
    * @since 1.0.0
+   *
+   * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static WEBSQL = STORAGE_DRIVERS.WEBSQL
   /**
    * localStorage驱动器
    *
    * @since 1.0.0
+   *
+   * @static
+   * @readonly
    * @memberOf Storage
+   *
+   * @type {string}
    */
   static LOCALSTORAGE = STORAGE_DRIVERS.LOCALSTORAGE
 
@@ -426,10 +455,14 @@ class Storage {
    * 默认配置选项
    *
    * @since 1.0.0
+   *
    * @static
+   * @readonly
    * @memberOf Storage
-   * @property {number} maxAge=-1 - 数据可存活时间，默认永久缓存
-   * @property {boolean} debug=false - 是否启用调试日志输出模式，默认关闭
+   *
+   * @type {object}
+   * @property {number} maxAge=-1 - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
+   * @property {boolean} debug=false - 调试日志输出模式
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
    * @property {string} name='storage' - 离线存储器命名空间
@@ -438,10 +471,10 @@ class Storage {
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
    */
   static options = {
+    name: 'storage',
     debug: false,
     maxAge: -1,
     driver: _actions.transformDriver(localForageDefaultDriver),
-    name: 'storage',
     description: localForageDefaultConfig.description,
     size: localForageDefaultConfig.size,
     storeName: localForageDefaultConfig.storeName,
@@ -451,31 +484,32 @@ class Storage {
    * 更新默认配置选项
    *
    * @since 1.0.0
-   * @static
-   * @param {object} options - 配置选项
-   * @param {number} [options.maxAge] - 数据可存活时间
-   * @param {boolean} [options.debug] - 调试日志输出模式
-   * @param {array|string} [options.driver] - 离线存储器的驱动器
-   * @param {string} [options.name] - 离线存储器命名空间
-   * @param {string} [options.description]- 离线存储器描述
-   * @param {number} [options.size]- 离线存储器的大小
-   * @param {string} [options.storeName] - 离线存储器的数据库名称
+   *
+   * @see Storage.options
+   *
+   * @param {object} options - 配置选项见{@link Storage.options}
+   *
+   * @returns {Storage}
    */
   static config(options) {
-    const ctor = this
-
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    ctor.options = {
-      ...ctor.options,
+    Storage.options = {
+      ...Storage.options,
       options
     }
+
+    return this
   }
 
   /**
    * 判断浏览器是否支持对应的离线存储驱动器
    *
    * @since 1.0.0
-   * @param {symbol} driver - 驱动器常量
+   *
+   * @async
+   *
+   * @param {Symbol} driver - 驱动器常量
+   *
    * @returns {Promise}
    */
   static supports(driver) {
@@ -485,25 +519,18 @@ class Storage {
   /**
    * 构造函数
    *
-   * @param {object} options - 配置参数
-   * @param {number} [options.maxAge] - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
-   * @param {boolean} [options.debug] - 调试日志输出模式
-   * @param {array|string} [options.driver] -
-   *   离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE
-   * @param {string} [options.name] - 离线存储器命名空间
-   * @param {string} [options.description]- 离线存储器描述
-   * @param {number} [options.size]- 离线存储器的大小
-   * @param {string} [options.storeName] - 离线存储器的数据库名称
+   * @see Storage.options
+   *
+   * @param {object} options - 配置选项见{@link Storage.options}
    */
   constructor(options) {
-    const ctor = this.constructor
     this.$options = {
-      ...ctor.options,
+      ...Storage.options,
       ...options
     }
 
     this._logger = new Logger({
-      name: 'storage',
+      name: this.$options.name,
       debug: this.$options.debug
     })
 
@@ -514,8 +541,8 @@ class Storage {
    * 实例关联的存储storeMap的localforage实例
    *
    * @since 1.0.0
+   *
    * @private
-   * @readonly
    */
   _storeMapStorage = undefined
 
@@ -523,8 +550,8 @@ class Storage {
    * 实例关联的localforage实例
    *
    * @since 1.0.0
+   *
    * @private
-   * @readonly
    */
   _storage = undefined
 
@@ -532,6 +559,7 @@ class Storage {
    * 日志打印器，方便调试
    *
    * @since 1.1.0
+   *
    * @private
    */
   _logger = undefined
@@ -540,8 +568,8 @@ class Storage {
    * 实例的完全初始化
    *
    * @since 1.0.0
+   *
    * @private
-   * @readonly
    */
   _ready = undefined
 
@@ -549,45 +577,32 @@ class Storage {
    * 实例的数据与存活时间映射关系表
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {object}
    */
   $storeMap = {}
 
   /**
-   * 实例配置项
+   * 实例初始配置项
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {object}
    */
   $options = undefined
-
-  /**
-   * 获取实例调试模式配置项
-   *
-   * @since 1.1.0
-   * @getter
-   * @returns {boolean}
-   */
-  get $debug() {
-    return this._logger.$debug
-  }
-
-  /**
-   * 设置实例调试模式配置项
-   *
-   * @since 1.1.0
-   * @setter
-   * @param {boolean} value - 启用或禁用
-   */
-  set $debug(value) {
-    this._logger.$debug = value
-  }
 
   /**
    * 实例的数据存活时长
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {number}
    */
   $maxAge = undefined
 
@@ -595,7 +610,10 @@ class Storage {
    * 实例的驱动器类型
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {string}
    */
   $driver = undefined
 
@@ -603,7 +621,10 @@ class Storage {
    * 实例的命名空间
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {string}
    */
   $name = undefined
 
@@ -611,7 +632,10 @@ class Storage {
    * 实例的描述
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {string}
    */
   $description = undefined
 
@@ -619,7 +643,10 @@ class Storage {
    * 实例的数据库大小
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {number}
    */
   $size = undefined
 
@@ -627,7 +654,10 @@ class Storage {
    * 实例的数据库名称
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {string}
    */
   $storeName = undefined
 
@@ -635,7 +665,10 @@ class Storage {
    * 实例的数据项长度
    *
    * @since 1.0.0
+   *
    * @readonly
+   *
+   * @type {number}
    */
   $length = 0
 
@@ -643,28 +676,23 @@ class Storage {
    * 获取实例的数据项长度，实例$length属性的别名属性
    *
    * @since 1.0.0
+   *
    * @getter
    * @readonly
-   * @returns {number}
+   *
+   * @type {number}
    */
   get length() {
     return this.$length || 0
   }
 
   /**
-   * 设置实例的数据项长度
-   *
-   * @since 1.0.0
-   * @setter
-   * @ignore
-   */
-  // set length(value) {
-  // }
-
-  /**
    * 确保实例已初始化完成
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @returns {Promise}
    */
   ready() {
@@ -676,6 +704,9 @@ class Storage {
    * [注] 确保实例已初始化完成，否则取不到值
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @returns {Promise}
    */
   driver() {
@@ -686,11 +717,15 @@ class Storage {
    * 存储数据项到离线存储器
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @param {string} name - 数据项名称
    * @param {*} data - 任意数据
    * @param {object} options - 自定义存储单元实例的配置选项
    * @param {number} [options.maxAge] - 数据单元项可存活时间（毫秒单位）
    * @param {string} [options.description]- 数据单元项描述
+   *
    * @returns {Promise}
    */
   setItem(name, data, options = {}) {
@@ -757,7 +792,11 @@ class Storage {
    * 获取指定数据项数据
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @param {string} name - 数据项名称
+   *
    * @returns {Promise}
    */
   getItem(name) {
@@ -796,7 +835,11 @@ class Storage {
    * 移除数据项
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @param {string} name - 数据项名称
+   *
    * @returns {Promise}
    */
   removeItem(name) {
@@ -814,6 +857,9 @@ class Storage {
    * 清空所有数据项
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @returns {Promise}
    */
   clear() {
@@ -842,6 +888,9 @@ class Storage {
    * 获取所有时效性活的数据的键列表
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @returns {Promise}
    */
   keys() {
@@ -865,7 +914,11 @@ class Storage {
    * 迭代所有数据项
    *
    * @since 1.0.0
+   *
+   * @async
+   *
    * @param {function} iteratorCallback - 迭代函数，迭代函数若返回了具体的值，则提前退出，且返回值将作为resolved的结果值
+   *
    * @returns {Promise}
    */
   iterate(iteratorCallback) {
@@ -887,24 +940,4 @@ class Storage {
 
 export { Storage }
 
-// 导出默认Storage实例
 export default new Storage()
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Nov 01 2017 16:42:27 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/linenumber.js"></script>
-</body>
-</html>

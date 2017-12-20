@@ -3,7 +3,8 @@ import sessionStorageWrapper from '../utils/localforage-sessionstoragewrapper'
 
 /**
  * localforage 驱动器常量枚举
- * @enum
+ *
+ * @enum {string}
  */
 export default {
   SESSIONSTORAGE: sessionStorageWrapper._driver,

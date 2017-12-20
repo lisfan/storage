@@ -2,6 +2,8 @@ import LOCALFORAGE_DRIVERS from './localforage-drivers'
 
 /**
  * localforage 驱动器与内置离线存储器的映射关系
+ *
+ * @enum {string}
  */
 export default {
   [LOCALFORAGE_DRIVERS.SESSIONSTORAGE]: 'sessionStorage',

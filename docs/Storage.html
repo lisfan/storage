@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Storage.html">Storage</a><ul class='methods'><li data-type='method'><a href="Storage.html#.config">config</a></li><li data-type='method'><a href="Storage.html#.supports">supports</a></li><li data-type='method'><a href="Storage.html#ready">ready</a></li><li data-type='method'><a href="Storage.html#driver">driver</a></li><li data-type='method'><a href="Storage.html#setItem">setItem</a></li><li data-type='method'><a href="Storage.html#getItem">getItem</a></li><li data-type='method'><a href="Storage.html#removeItem">removeItem</a></li><li data-type='method'><a href="Storage.html#clear">clear</a></li><li data-type='method'><a href="Storage.html#keys">keys</a></li><li data-type='method'><a href="Storage.html#iterate">iterate</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DataItem.html">DataItem</a><ul class='methods'><li data-type='method'><a href="DataItem.html#.config">config</a></li><li data-type='method'><a href="DataItem.html#fillData">fillData</a></li><li data-type='method'><a href="DataItem.html#updateData">updateData</a></li><li data-type='method'><a href="DataItem.html#isOutdated">isOutdated</a></li></ul></li><li><a href="Storage.html">Storage</a><ul class='methods'><li data-type='method'><a href="Storage.html#.config">config</a></li><li data-type='method'><a href="Storage.html#.supports">supports</a></li><li data-type='method'><a href="Storage.html#ready">ready</a></li><li data-type='method'><a href="Storage.html#driver">driver</a></li><li data-type='method'><a href="Storage.html#setItem">setItem</a></li><li data-type='method'><a href="Storage.html#getItem">getItem</a></li><li data-type='method'><a href="Storage.html#removeItem">removeItem</a></li><li data-type='method'><a href="Storage.html#clear">clear</a></li><li data-type='method'><a href="Storage.html#keys">keys</a></li><li data-type='method'><a href="Storage.html#iterate">iterate</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -69,7 +69,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line356">line 356</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line404">line 404</a>
     </li></ul></dd>
     
 
@@ -166,269 +166,7 @@
 
             
 
-            <td class="description last"><p>配置参数</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>maxAge</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>debug</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>调试日志输出模式</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>driver</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的驱动器，可选值有:Storage.SESSIONSTORAGE、Storage.INDEXEDDB、Storage.WEBSQL、Storage.LOCALSTORAGE</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器命名空间</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>description</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器描述</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>size</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的大小</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>storeName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的数据库名称</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>配置选项见<a href="Storage.html#.options">Storage.options</a></p></td>
         </tr>
 
     
@@ -468,7 +206,7 @@
 
         
             
-<h4 class="name" id=".SESSIONSTORAGE"><span class="type-signature">(static) </span>SESSIONSTORAGE<span class="type-signature"></span></h4>
+<h4 class="name" id=".SESSIONSTORAGE"><span class="type-signature">(static, readonly) </span>SESSIONSTORAGE<span class="type-signature"> :string</span></h4>
 
 
 
@@ -479,7 +217,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line363">line 363</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -527,6 +265,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -534,7 +282,7 @@
 
         
             
-<h4 class="name" id=".INDEXEDDB"><span class="type-signature">(static) </span>INDEXEDDB<span class="type-signature"></span></h4>
+<h4 class="name" id=".INDEXEDDB"><span class="type-signature">(static, readonly) </span>INDEXEDDB<span class="type-signature"> :string</span></h4>
 
 
 
@@ -545,7 +293,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line370">line 370</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line428">line 428</a>
     </li></ul></dd>
     
 
@@ -593,6 +341,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -600,7 +358,7 @@
 
         
             
-<h4 class="name" id=".WEBSQL"><span class="type-signature">(static) </span>WEBSQL<span class="type-signature"></span></h4>
+<h4 class="name" id=".WEBSQL"><span class="type-signature">(static, readonly) </span>WEBSQL<span class="type-signature"> :string</span></h4>
 
 
 
@@ -611,7 +369,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line377">line 377</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line440">line 440</a>
     </li></ul></dd>
     
 
@@ -659,6 +417,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -666,7 +434,7 @@
 
         
             
-<h4 class="name" id=".LOCALSTORAGE"><span class="type-signature">(static) </span>LOCALSTORAGE<span class="type-signature"></span></h4>
+<h4 class="name" id=".LOCALSTORAGE"><span class="type-signature">(static, readonly) </span>LOCALSTORAGE<span class="type-signature"> :string</span></h4>
 
 
 
@@ -677,7 +445,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line384">line 384</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line452">line 452</a>
     </li></ul></dd>
     
 
@@ -725,6 +493,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -732,7 +510,7 @@
 
         
             
-<h4 class="name" id=".options"><span class="type-signature">(static) </span>options<span class="type-signature"></span></h4>
+<h4 class="name" id=".options"><span class="type-signature">(static, readonly) </span>options<span class="type-signature"> :object</span></h4>
 
 
 
@@ -743,7 +521,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line401">line 401</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line473">line 473</a>
     </li></ul></dd>
     
 
@@ -833,7 +611,7 @@
                 </td>
             
 
-            <td class="description last"><p>数据可存活时间，默认永久缓存</p></td>
+            <td class="description last"><p>数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间</p></td>
         </tr>
 
     
@@ -862,7 +640,7 @@
                 </td>
             
 
-            <td class="description last"><p>是否启用调试日志输出模式，默认关闭</p></td>
+            <td class="description last"><p>调试日志输出模式</p></td>
         </tr>
 
     
@@ -1025,6 +803,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1032,7 +820,7 @@
 
         
             
-<h4 class="name" id="$storeMap"><span class="type-signature">(readonly) </span>$storeMap<span class="type-signature"></span></h4>
+<h4 class="name" id="$storeMap"><span class="type-signature">(readonly) </span>$storeMap<span class="type-signature"> :object</span></h4>
 
 
 
@@ -1043,7 +831,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line515">line 515</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line585">line 585</a>
     </li></ul></dd>
     
 
@@ -1091,6 +879,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1098,7 +896,7 @@
 
         
             
-<h4 class="name" id="$options"><span class="type-signature">(readonly) </span>$options<span class="type-signature"></span></h4>
+<h4 class="name" id="$options"><span class="type-signature">(readonly) </span>$options<span class="type-signature"> :object</span></h4>
 
 
 
@@ -1109,7 +907,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line523">line 523</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line596">line 596</a>
     </li></ul></dd>
     
 
@@ -1152,10 +950,20 @@
 
 
 <div class="description">
-    <p>实例配置项</p>
+    <p>实例初始配置项</p>
 </div>
 
 
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">object</span>
+
+
+        </li>
+    </ul>
 
 
 
@@ -1164,7 +972,7 @@
 
         
             
-<h4 class="name" id="$debug"><span class="type-signature"></span>$debug<span class="type-signature"></span></h4>
+<h4 class="name" id="$maxAge"><span class="type-signature">(readonly) </span>$maxAge<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1175,139 +983,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line532">line 532</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>1.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>获取实例调试模式配置项</p>
-</div>
-
-
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="$debug"><span class="type-signature"></span>$debug<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line543">line 543</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>1.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>设置实例调试模式配置项</p>
-</div>
-
-
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="$maxAge"><span class="type-signature">(readonly) </span>$maxAge<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line553">line 553</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line607">line 607</a>
     </li></ul></dd>
     
 
@@ -1355,6 +1031,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1362,7 +1048,7 @@
 
         
             
-<h4 class="name" id="$driver"><span class="type-signature">(readonly) </span>$driver<span class="type-signature"></span></h4>
+<h4 class="name" id="$driver"><span class="type-signature">(readonly) </span>$driver<span class="type-signature"> :string</span></h4>
 
 
 
@@ -1373,7 +1059,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line561">line 561</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line618">line 618</a>
     </li></ul></dd>
     
 
@@ -1421,6 +1107,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1428,7 +1124,7 @@
 
         
             
-<h4 class="name" id="$name"><span class="type-signature">(readonly) </span>$name<span class="type-signature"></span></h4>
+<h4 class="name" id="$name"><span class="type-signature">(readonly) </span>$name<span class="type-signature"> :string</span></h4>
 
 
 
@@ -1439,7 +1135,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line569">line 569</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line629">line 629</a>
     </li></ul></dd>
     
 
@@ -1487,6 +1183,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1494,7 +1200,7 @@
 
         
             
-<h4 class="name" id="$description"><span class="type-signature">(readonly) </span>$description<span class="type-signature"></span></h4>
+<h4 class="name" id="$description"><span class="type-signature">(readonly) </span>$description<span class="type-signature"> :string</span></h4>
 
 
 
@@ -1505,7 +1211,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line577">line 577</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line640">line 640</a>
     </li></ul></dd>
     
 
@@ -1553,6 +1259,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1560,7 +1276,7 @@
 
         
             
-<h4 class="name" id="$size"><span class="type-signature">(readonly) </span>$size<span class="type-signature"></span></h4>
+<h4 class="name" id="$size"><span class="type-signature">(readonly) </span>$size<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1571,7 +1287,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line585">line 585</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line651">line 651</a>
     </li></ul></dd>
     
 
@@ -1619,6 +1335,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1626,7 +1352,7 @@
 
         
             
-<h4 class="name" id="$storeName"><span class="type-signature">(readonly) </span>$storeName<span class="type-signature"></span></h4>
+<h4 class="name" id="$storeName"><span class="type-signature">(readonly) </span>$storeName<span class="type-signature"> :string</span></h4>
 
 
 
@@ -1637,7 +1363,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line593">line 593</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line662">line 662</a>
     </li></ul></dd>
     
 
@@ -1685,6 +1411,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1692,7 +1428,7 @@
 
         
             
-<h4 class="name" id="$length"><span class="type-signature">(readonly) </span>$length<span class="type-signature"></span></h4>
+<h4 class="name" id="$length"><span class="type-signature">(readonly) </span>$length<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1703,7 +1439,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line601">line 601</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line673">line 673</a>
     </li></ul></dd>
     
 
@@ -1751,6 +1487,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1758,7 +1504,7 @@
 
         
             
-<h4 class="name" id="length"><span class="type-signature">(readonly) </span>length<span class="type-signature"></span></h4>
+<h4 class="name" id="length"><span class="type-signature">(readonly) </span>length<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1769,7 +1515,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line611">line 611</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line685">line 685</a>
     </li></ul></dd>
     
 
@@ -1817,6 +1563,16 @@
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -1833,7 +1589,7 @@
 
     
 
-    <h4 class="name" id=".config"><span class="type-signature">(static) </span>config<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".config"><span class="type-signature">(static) </span>config<span class="signature">(options)</span><span class="type-signature"> &rarr; {<a href="Storage.html">Storage</a>}</span></h4>
 
     
 
@@ -1845,7 +1601,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line425">line 425</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line494">line 494</a>
     </li></ul></dd>
     
 
@@ -1878,6 +1634,13 @@
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Storage.html#.options">Storage.options</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -1942,269 +1705,7 @@
 
             
 
-            <td class="description last"><p>配置选项</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>maxAge</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>数据可存活时间</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>debug</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>调试日志输出模式</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>driver</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的驱动器</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器命名空间</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>description</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器描述</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>size</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的大小</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>storeName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>离线存储器的数据库名称</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>配置选项见<a href="Storage.html#.options">Storage.options</a></p></td>
         </tr>
 
     
@@ -2224,6 +1725,24 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Storage.html">Storage</a></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
         
@@ -2231,7 +1750,7 @@
 
     
 
-    <h4 class="name" id=".supports"><span class="type-signature">(static) </span>supports<span class="signature">(driver)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id=".supports"><span class="type-signature">(async, static) </span>supports<span class="signature">(driver)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -2243,7 +1762,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line442">line 442</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line515">line 515</a>
     </li></ul></dd>
     
 
@@ -2330,7 +1849,7 @@
             <td class="type">
             
                 
-<span class="param-type">symbol</span>
+<span class="param-type">Symbol</span>
 
 
             
@@ -2385,7 +1904,7 @@
 
     
 
-    <h4 class="name" id="ready"><span class="type-signature"></span>ready<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="ready"><span class="type-signature">(async) </span>ready<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -2397,7 +1916,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line631">line 631</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line698">line 698</a>
     </li></ul></dd>
     
 
@@ -2490,7 +2009,7 @@
 
     
 
-    <h4 class="name" id="driver"><span class="type-signature"></span>driver<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="driver"><span class="type-signature">(async) </span>driver<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -2502,7 +2021,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line642">line 642</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line712">line 712</a>
     </li></ul></dd>
     
 
@@ -2595,7 +2114,7 @@
 
     
 
-    <h4 class="name" id="setItem"><span class="type-signature"></span>setItem<span class="signature">(name, data, options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="setItem"><span class="type-signature">(async) </span>setItem<span class="signature">(name, data, options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -2607,7 +2126,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line657">line 657</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line731">line 731</a>
     </li></ul></dd>
     
 
@@ -2889,7 +2408,7 @@
 
     
 
-    <h4 class="name" id="getItem"><span class="type-signature"></span>getItem<span class="signature">(name)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="getItem"><span class="type-signature">(async) </span>getItem<span class="signature">(name)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -2901,7 +2420,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line724">line 724</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line802">line 802</a>
     </li></ul></dd>
     
 
@@ -3043,7 +2562,7 @@
 
     
 
-    <h4 class="name" id="removeItem"><span class="type-signature"></span>removeItem<span class="signature">(name)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="removeItem"><span class="type-signature">(async) </span>removeItem<span class="signature">(name)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -3055,7 +2574,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line763">line 763</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line845">line 845</a>
     </li></ul></dd>
     
 
@@ -3197,7 +2716,7 @@
 
     
 
-    <h4 class="name" id="clear"><span class="type-signature"></span>clear<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="clear"><span class="type-signature">(async) </span>clear<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -3209,7 +2728,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line780">line 780</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line865">line 865</a>
     </li></ul></dd>
     
 
@@ -3302,7 +2821,7 @@
 
     
 
-    <h4 class="name" id="keys"><span class="type-signature"></span>keys<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="keys"><span class="type-signature">(async) </span>keys<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -3314,7 +2833,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line808">line 808</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line896">line 896</a>
     </li></ul></dd>
     
 
@@ -3407,7 +2926,7 @@
 
     
 
-    <h4 class="name" id="iterate"><span class="type-signature"></span>iterate<span class="signature">(iteratorCallback)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="iterate"><span class="type-signature">(async) </span>iterate<span class="signature">(iteratorCallback)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
@@ -3419,7 +2938,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line832">line 832</a>
+        <a href="storage.js.html">storage.js</a>, <a href="storage.js.html#line924">line 924</a>
     </li></ul></dd>
     
 
@@ -3574,7 +3093,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Nov 01 2017 16:42:27 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Dec 20 2017 09:49:03 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

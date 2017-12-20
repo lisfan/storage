@@ -1,5 +1,6 @@
 /**
  * 模拟 lodash API
+ * @ignore
  */
 import validation from '@~lisfan/validation'
 
@@ -8,8 +9,10 @@ export default {
    * 移除了数组中所有的假值。例如：false、null、 0、""、undefined， 以及NaN 都是 “假值”.
    *
    * @since 1.0.0
+   *
    * @param {array} array - 数组
-   * @return {array}
+   *
+   * @returns {array}
    */
   compact(array) {
     return array.filter((item) => {
@@ -20,7 +23,9 @@ export default {
    * 如果 value 不是数组, 那么强制转为数组
    *
    * @since 1.0.0
+   *
    * @param {*} value - 任意值
+   *
    * @returns {array}
    */
   castArray(value) {
@@ -31,8 +36,10 @@ export default {
    * iteratee 会传入3个参数： (value, key, object)
    *
    * @since 1.0.0
+   *
    * @param {object} obj - 对象
    * @param {function} iterate - 迭代函数
+   *
    * @returns {object}
    */
   mapValues(obj, iterate) {
@@ -44,5 +51,4 @@ export default {
 
     return newObj
   }
-
 }
