@@ -40,9 +40,10 @@ class DataItem {
    * @returns {DataItem}
    */
   static config(options) {
+    const ctr = this
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    DataItem.options = {
-      ...DataItem.options,
+    ctr.options = {
+      ...ctr.options,
       options
     }
 
@@ -59,8 +60,9 @@ class DataItem {
    * @param {number} [options.timeStamp=Date.now()] - 数据初始存储时间戳，若未指定，默认使用当前时间
    */
   constructor(options) {
+    const ctr = this.constructor
     this.$options = {
-      ...DataItem.options,
+      ...ctr.options,
       timeStamp: Date.now(),
       ...options
     }

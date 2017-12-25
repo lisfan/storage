@@ -489,13 +489,14 @@ class Storage {
    * @returns {Storage}
    */
   static config(options) {
+    const ctr = this
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    Storage.options = {
-      ...Storage.options,
+    ctr.options = {
+      ...ctr.options,
       options
     }
 
-    return this
+    return ctr
   }
 
   /**
@@ -521,8 +522,10 @@ class Storage {
    * @param {object} options - 配置选项见{@link Storage.options}
    */
   constructor(options) {
+    const ctr = this
+
     this.$options = {
-      ...Storage.options,
+      ...ctr.options,
       ...options
     }
 
