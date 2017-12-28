@@ -459,10 +459,10 @@ class Storage {
    *
    * @type {object}
    * @property {number} maxAge=-1 - 数据可存活时间（毫秒单位），可选值有：0=不缓存，小于0的值=永久缓存（默认），大于0的值=可存活时间
-   * @property {boolean} debug=false - 调试日志输出模式
+   * @property {boolean} debug=false - 日志打印器调试模式开启状态
    * @property {array} driver=[Storage.SESSIONSTORAGE,Storage.INDEXEDDB,Storage.WEBSQL,Storage.LOCALSTORAGE] -
    *   离线存储器的驱动器优先选择列表
-   * @property {string} name='storage' - 离线存储器命名空间
+   * @property {string} name='storage' - 离线存储器命名空间，也是日志打印器名称标记
    * @property {string} description='' - 离线存储器描述，取localforage的默认值
    * @property {number} size=4980736 - 离线存储器的大小，仅webSQL有效，取localforage的默认值
    * @property {string} storeName=4980736 - 离线存储器的数据库名称，仅indexedDB和WebSQL有效，取localforage的默认值
@@ -489,14 +489,14 @@ class Storage {
    * @returns {Storage}
    */
   static config(options) {
-    const ctr = this
+    const ctor = this
     // 不调用localforage.config，希望这里的config只是针对Storage类的配置更新
-    ctr.options = {
-      ...ctr.options,
+    ctor.options = {
+      ...ctor.options,
       options
     }
 
-    return ctr
+    return ctor
   }
 
   /**
@@ -522,10 +522,10 @@ class Storage {
    * @param {object} options - 配置选项见{@link Storage.options}
    */
   constructor(options) {
-    const ctr = this
+    const ctor = this
 
     this.$options = {
-      ...ctr.options,
+      ...ctor.options,
       ...options
     }
 
