@@ -1,340 +1,256 @@
-/* eslint-disable */
-
-/**
- * fork from https://github.com/localForage/localForage-sessionStorageWrapper
- * 由于其引入了部分兼容代码，造成无法使用，对那部分进行了删除
- */
-(function () {
-  'use strict';
-
-  var globalObject = this;
-  var serializer = null;
-  var sessionStorage = null;
-
-  function getSupport() {
-    // If the app is running inside a Google Chrome packaged webapp, or some
-    // other context where sessionStorage isn't available, we don't use
-    // sessionStorage. This feature detection is preferred over the old
-    // `if (window.chrome && window.chrome.runtime)` code.
-    // See: https://github.com/mozilla/localForage/issues/68
-    try {
-      // If sessionStorage isn't available, we get outta here!
-      // This should be inside a try catch
-      if (globalObject.sessionStorage && ('setItem' in globalObject.sessionStorage)) {
-        return true;
-      }
-    } catch (e) {
-
-    }
-
+let getSerializerPromiseCache;
+function getSerializerPromise(localForageInstance) {
+  if (getSerializerPromiseCache) {
+    return getSerializerPromiseCache;
+  }
+  if (!localForageInstance ||
+      typeof localForageInstance.getSerializer !== 'function') {
+    return Promise.reject(new Error('localforage.getSerializer() was not available! ' +
+        'localforage v1.4+ is required!'));
+  }
+  getSerializerPromiseCache = localForageInstance.getSerializer();
+  return getSerializerPromiseCache;
+}
+function getCallback() {
+  if (arguments.length &&
+      typeof arguments[arguments.length - 1] === 'function') {
+    return arguments[arguments.length - 1];
+  }
+}
+function executeCallback(promise, callback) {
+  if (callback) {
+    promise.then(function (result) {
+      callback(null, result);
+    }, function (error) {
+      callback(error);
+    });
+  }
+  return promise;
+}
+function isSessionStorageValid() {
+  try {
+    return (typeof sessionStorage !== 'undefined' &&
+        'setItem' in sessionStorage &&
+        !!sessionStorage.setItem);
+  }
+  catch (e) {
     return false;
   }
-
-  if (getSupport()) {
-    // Initialize sessionStorage and create a variable to use throughout
-    // the code.
-    sessionStorage = this.sessionStorage;
-  } else {
-    return;
+}
+function normalizeKey(key) {
+  if (typeof key !== 'string') {
+    console.warn(`${key} used as a key, but it is not a string.`);
+    key = String(key);
   }
+  return key;
+}
 
-  var ModuleType = {
-    DEFINE: 1,
-    EXPORT: 2,
-    WINDOW: 3
-  };
-
-  // Attaching to window (i.e. no module loader) is the assumed,
-  // simple default.
-  var moduleType = ModuleType.WINDOW;
-
-  // Find out what kind of module setup we have; if none, we'll just attach
-  // localForage to the main window.
-  if (typeof define === 'function' && define.amd) {
-    moduleType = ModuleType.DEFINE;
+function _getKeyPrefix(options, defaultConfig) {
+  let keyPrefix = options.name + '/';
+  if (options.storeName !== defaultConfig.storeName) {
+    keyPrefix += options.storeName + '/';
   }
-
-  // Config the sessionStorage backend, using options set in the config.
-  function _initStorage(options) {
-    var self = this;
-    var dbInfo = {};
-    if (options) {
-      for (var i in options) {
-        dbInfo[i] = options[i];
-      }
+  return keyPrefix;
+}
+function checkIfStorageThrows(storage) {
+  const storageTestKey = '_localforage_support_test';
+  try {
+    storage.setItem(storageTestKey, 'true');
+    storage.removeItem(storageTestKey);
+    return false;
+  }
+  catch (e) {
+    return true;
+  }
+}
+function _isStorageUsable(storage) {
+  return !checkIfStorageThrows(storage) || storage.length > 0;
+}
+function _initStorage(options = {}) {
+  const dbInfo = Object.assign({}, options, { db: sessionStorage, keyPrefix: _getKeyPrefix(options, this._defaultConfig) });
+  if (!_isStorageUsable(dbInfo.db)) {
+    return Promise.reject();
+  }
+  this._dbInfo = dbInfo;
+  return getSerializerPromise(this).then(serializer => {
+    dbInfo.serializer = serializer;
+});
+}
+function clear(callback) {
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix } = this._dbInfo;
+  for (let i = store.length - 1; i >= 0; i--) {
+    const key = store.key(i) || '';
+    if (key.indexOf(keyPrefix) === 0) {
+      store.removeItem(key);
     }
-
-    dbInfo.keyPrefix = dbInfo.name + '/';
-
-    self._dbInfo = dbInfo;
-
-    var serializerPromise = new Promise(function (resolve, reject) {
-
-      // add support for localforage v1.3.x
-      if (typeof self.getSerializer === 'function') {
-        self.getSerializer().then(resolve, reject);
+  }
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function getItem(key, callback) {
+  key = normalizeKey(key);
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix, serializer } = this._dbInfo;
+  const result = store.getItem(keyPrefix + key);
+  if (!result) {
+    return result;
+  }
+  return serializer.deserialize(result);
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function iterate(iterator, callback) {
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix, serializer } = this._dbInfo;
+  const keyPrefixLength = keyPrefix.length;
+  const length = store.length;
+  let iterationNumber = 1;
+  for (let i = 0; i < length; i++) {
+    const key = store.key(i) || '';
+    if (key.indexOf(keyPrefix) !== 0) {
+      continue;
+    }
+    const storeValue = store.getItem(key);
+    const value = storeValue
+        ? serializer.deserialize(storeValue)
+        : null;
+    const iteratorResult = iterator(value, key.substring(keyPrefixLength), iterationNumber++);
+    if (iteratorResult !== void 0) {
+      return iteratorResult;
+    }
+  }
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function key(keyIndex, callback) {
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix } = this._dbInfo;
+  let result;
+  try {
+    result = store.key(keyIndex) || null;
+  }
+  catch (error) {
+    result = null;
+  }
+  if (!result) {
+    return result;
+  }
+  return result.substring(keyPrefix.length);
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function keys(callback) {
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix } = this._dbInfo;
+  const length = store.length;
+  const keys = [];
+  for (let i = 0; i < length; i++) {
+    const itemKey = store.key(i) || '';
+    if (itemKey.indexOf(keyPrefix) === 0) {
+      keys.push(itemKey.substring(keyPrefix.length));
+    }
+  }
+  return keys;
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function length(callback) {
+  const promise = this.keys().then(keys => keys.length);
+  executeCallback(promise, callback);
+  return promise;
+}
+function removeItem(key, callback) {
+  key = normalizeKey(key);
+  const promise = this.ready().then(() => {
+    const { db: store, keyPrefix } = this._dbInfo;
+  store.removeItem(keyPrefix + key);
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function setItem(key, value, callback) {
+  key = normalizeKey(key);
+  const promise = this.ready().then(() => {
+    if (value === undefined) {
+    value = null;
+  }
+  const originalValue = value;
+  const { db: store, keyPrefix, serializer } = this._dbInfo;
+  return new Promise((resolve, reject) => {
+    serializer.serialize(value, (value, error) => {
+      if (error) {
+        reject(error);
         return;
       }
-    });
-
-    return serializerPromise.then(function (lib) {
-      serializer = lib;
-      return Promise.resolve();
-    });
-  }
-
-  // Remove all keys from the datastore, effectively destroying all data in
-  // the app's key/value store!
-  function clear(callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-      var keyPrefix = self._dbInfo.keyPrefix;
-
-      for (var i = sessionStorage.length - 1; i >= 0; i--) {
-        var key = sessionStorage.key(i);
-
-        if (key.indexOf(keyPrefix) === 0) {
-          sessionStorage.removeItem(key);
-        }
-      }
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Retrieve an item from the store. Unlike the original async_storage
-  // library in Gaia, we don't modify return values at all. If a key's value
-  // is `undefined`, we pass that value to the callback function.
-  function getItem(key, callback) {
-    var self = this;
-
-    // Cast the key to a string, as that's all we can set as a key.
-    if (typeof key !== 'string') {
-      window.console.warn(key +
-        ' used as a key, but it is not a string.');
-      key = String(key);
-    }
-
-    var promise = self.ready().then(function () {
-      var dbInfo = self._dbInfo;
-      var result = sessionStorage.getItem(dbInfo.keyPrefix + key);
-
-      // If a result was found, parse it from the serialized
-      // string into a JS object. If result isn't truthy, the key
-      // is likely undefined and we'll pass it straight to the
-      // callback.
-      if (result) {
-        result = serializer.deserialize(result);
-      }
-
-      return result;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Iterate over all items in the store.
-  function iterate(iterator, callback) {
-    var self = this;
-
-    var promise = self.ready().then(function () {
-      var keyPrefix = self._dbInfo.keyPrefix;
-      var keyPrefixLength = keyPrefix.length;
-      var length = sessionStorage.length;
-
-      let counter = 0
-      for (var i = 0; i < length; i++) {
-        var key = sessionStorage.key(i);
-
-        // [fix] 修复读取了非该命名空间的值
-        if (!key.startsWith(keyPrefix)) {
-          continue
-        }
-
-        counter++
-        var value = sessionStorage.getItem(key);
-
-        // If a result was found, parse it from the serialized
-        // string into a JS object. If result isn't truthy, the
-        // key is likely undefined and we'll pass it straight
-        // to the iterator.
-        if (value) {
-          value = serializer.deserialize(value);
-        }
-
-        value = iterator(value, key.substring(keyPrefixLength), counter);
-
-        if (value !== void(0)) {
-          return value;
-        }
-      }
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Same as sessionStorage's key() method, except takes a callback.
-  function key(n, callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-      var dbInfo = self._dbInfo;
-      var result;
       try {
-        result = sessionStorage.key(n);
-      } catch (error) {
-        result = null;
-      }
-
-      // Remove the prefix from the key, if a key is found.
-      if (result) {
-        result = result.substring(dbInfo.keyPrefix.length);
-      }
-
-      return result;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
+        store.setItem(keyPrefix + key, value);
+  resolve(originalValue);
+}
+catch (e) {
+    if (e.name === 'QuotaExceededError' ||
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      reject(e);
+    }
+    reject(e);
   }
-
-  function keys(callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-      var dbInfo = self._dbInfo;
-      var length = sessionStorage.length;
-      var keys = [];
-
-      for (var i = 0; i < length; i++) {
-        if (sessionStorage.key(i).indexOf(dbInfo.keyPrefix) === 0) {
-          keys.push(sessionStorage.key(i).substring(dbInfo.keyPrefix.length));
+});
+});
+});
+  executeCallback(promise, callback);
+  return promise;
+}
+function dropInstance(dbInstanceOptions, callback) {
+  callback = getCallback.apply(this, arguments);
+  const options = (typeof dbInstanceOptions !== 'function' && dbInstanceOptions) || {};
+  if (!options.name) {
+    const currentConfig = this.config();
+    options.name = options.name || currentConfig.name;
+    options.storeName = options.storeName || currentConfig.storeName;
+  }
+  let promise;
+  if (!options.name) {
+    promise = Promise.reject('Invalid arguments');
+  }
+  else {
+    try {
+      const keyPrefix = !options.storeName
+          ? `${options.name}/`
+          : _getKeyPrefix(options, this._defaultConfig);
+      const { db: store } = this._dbInfo;
+      for (let i = store.length - 1; i >= 0; i--) {
+        const key = store.key(i) || '';
+        if (key.indexOf(keyPrefix) === 0) {
+          store.removeItem(key);
         }
       }
-
-      return keys;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Supply the number of keys in the datastore to the callback function.
-  function length(callback) {
-    var self = this;
-    var promise = self.keys().then(function (keys) {
-      return keys.length;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Remove an item from the store, nice and simple.
-  function removeItem(key, callback) {
-    var self = this;
-
-    // Cast the key to a string, as that's all we can set as a key.
-    if (typeof key !== 'string') {
-      window.console.warn(key +
-        ' used as a key, but it is not a string.');
-      key = String(key);
+      promise = Promise.resolve();
     }
-
-    var promise = self.ready().then(function () {
-      var dbInfo = self._dbInfo;
-      sessionStorage.removeItem(dbInfo.keyPrefix + key);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  // Set a key's value and run an optional callback once the value is set.
-  // Unlike Gaia's implementation, the callback function is passed the value,
-  // in case you want to operate on that value only after you're sure it
-  // saved, or something like that.
-  function setItem(key, value, callback) {
-    var self = this;
-
-    // Cast the key to a string, as that's all we can set as a key.
-    if (typeof key !== 'string') {
-      window.console.warn(key +
-        ' used as a key, but it is not a string.');
-      key = String(key);
-    }
-
-    var promise = self.ready().then(function () {
-      // Convert undefined values to null.
-      // https://github.com/mozilla/localForage/pull/42
-      if (value === undefined) {
-        value = null;
-      }
-
-      // Save the original value to pass to the callback.
-      var originalValue = value;
-
-      return new Promise(function (resolve, reject) {
-        serializer.serialize(value, function (value, error) {
-          if (error) {
-            reject(error);
-          } else {
-            try {
-              var dbInfo = self._dbInfo;
-              sessionStorage.setItem(dbInfo.keyPrefix + key, value);
-              resolve(originalValue);
-            } catch (e) {
-              // sessionStorage capacity exceeded.
-              // TODO: Make this a specific error/event.
-              if (e.name === 'QuotaExceededError' ||
-                e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-                reject(e);
-              }
-              reject(e);
-            }
-          }
-        });
-      });
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-  }
-
-  function executeCallback(promise, callback) {
-    if (callback) {
-      promise.then(function (result) {
-        callback(null, result);
-      }, function (error) {
-        callback(error);
-      });
+    catch (e) {
+      promise = Promise.reject(e);
     }
   }
+  executeCallback(promise, callback);
+  return promise;
+}
+const sessionStorageWrapper = {
+  _driver: 'sessionStorageWrapper',
+  _initStorage,
+  _support: isSessionStorageValid(),
+  iterate,
+  getItem,
+  setItem,
+  removeItem,
+  clear,
+  length,
+  key,
+  keys,
+  dropInstance,
+};
 
-  var sessionStorageWrapper = {
-    _driver: 'sessionStorageWrapper',
-    _initStorage: _initStorage,
-    _support: function () {
-      return new Promise(function (resolve/*, reject*/) {
-        resolve(getSupport());
-      });
-    },
-    iterate: iterate,
-    getItem: getItem,
-    setItem: setItem,
-    removeItem: removeItem,
-    clear: clear,
-    length: length,
-    key: key,
-    keys: keys
-  };
-
-  if (moduleType === ModuleType.DEFINE) {
-    define('sessionStorageWrapper', function () {
-      return sessionStorageWrapper;
-    });
-  } else {
-    this.sessionStorageWrapper = sessionStorageWrapper;
-  }
-}).call(window);
+export default sessionStorageWrapper;

@@ -13,7 +13,7 @@
     "pub-x": "npm run pub-pre && npm publish --tag next && npm run pub-post",
     "pub-l": "npm run pub-pre && npm publish && npm run pub-post",
     "pub": "git pull && npm publish && npm run pub-post",
-    "pub-post": "git commit -am \"chore: publish@$npm_package_version\" && git push",
+    "pub-post": "git commit -am \"bump: publish@$npm_package_version\" && git push",
     "docs": "rm -rf docs && jsdoc -c conf/jsdoc.config.json"
   },
   "repository": {
