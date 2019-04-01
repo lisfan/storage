@@ -804,7 +804,7 @@ class Storage {
 
     // 如果DataItem实例不存在，或者DataItem实例的maxAge属性不存在
     if (!dataItem || !validation.isNumber(dataItem.$maxAge)) {
-      return Promise.reject('outdate')
+      return Promise.reject('not found')
     }
 
     // maxAge的值大于0
