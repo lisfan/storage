@@ -522,7 +522,7 @@ class Storage {
    * @param {object} options - 配置选项见{@link Storage.options}
    */
   constructor(options) {
-    const ctor = this
+    const ctor = this.constructor
 
     this.$options = {
       ...ctor.options,
